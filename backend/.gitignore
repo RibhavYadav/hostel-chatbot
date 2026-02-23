@@ -1,0 +1,44 @@
+# Virtual Environment
+.venv/
+venv/
+env/
+
+
+# Python Version
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.py[cod]
+
+# TensorFlow / Model Artifacts
+*.h5
+*.pkl
+*.ckpt
+*.pb
+saved_model/
+training_checkpoints/
+
+# NLTK Downloaded Data
+nltk_data/
+
+# Environment Variables
+.env
+.env.*
+!.env.example
+
+# PyCharm
+.idea/
+
+# Test Cache
+.pytest_cache/
+htmlcov/
+.coverage
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db

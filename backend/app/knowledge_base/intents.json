@@ -1,0 +1,43 @@
+{
+  "intents": [
+    {
+      "tag": "greeting",
+      "patterns": [
+        "Hello",
+        "Hi",
+        "Hey",
+        "Good morning",
+        "Is anyone there?"
+      ],
+      "responses": [
+        "Hello! How can I assist you today?",
+        "Hi there! What can I help you with?"
+      ]
+    },
+    {
+      "tag": "leave_request",
+      "patterns": [
+        "I want to apply for leave",
+        "How do I submit a leave request",
+        "Can I get permission to go home",
+        "I need to request leave",
+        "Leave application process"
+      ],
+      "responses": [
+        "I can help you with a leave request. Please fill in the form below."
+      ]
+    },
+    {
+      "tag": "curfew_rule",
+      "patterns": [
+        "What is the curfew time",
+        "When do the gates close",
+        "What time should I return",
+        "Gate closing time"
+      ],
+      "responses": [
+        "The hostel gates close at 10:00 PM. All students must be back by then."
+      ]
+    }
+  ]
+}

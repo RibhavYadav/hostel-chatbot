@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+tensorflow
+numpy
+pandas
+scikit-learn
+nltk
+regex
+h5py
+pydantic
+python-dotenv
+pytest
+httpx
