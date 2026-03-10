@@ -1,8 +1,31 @@
 export interface Student {
-	id: string;
+	registrationNumber: number;
 	name: string;
-	roomNumber: string;
+	emailID: string;
 	department: string;
+}
+
+export interface MockStudent extends Student {
+	password: string;
+}
+
+export interface LoginForm {
+	registrationNumber: number;
+	emailID: string;
+	password: string;
+}
+
+export interface RegisterForm {
+	registrationNumber: number;
+	emailID: string;
+	password: string;
+	confirmPassword: string;
+}
+
+export interface AuthState {
+	readonly currentUser: Student | null;
+	readonly isLoggedIn: boolean;
+	readonly errorMessage: string | null;
 }
 
 export interface ChatMessage {
@@ -12,7 +35,7 @@ export interface ChatMessage {
 }
 
 export interface LeaveRequest {
-	studentId: string;
+	registrationNumber: number;
 	startDate: string;
 	endDate: string;
 	reason: string;
