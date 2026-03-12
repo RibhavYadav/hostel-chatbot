@@ -5,7 +5,7 @@ import type { MockStudent, LoginForm, RegisterForm, AuthState } from '$lib/types
 const initialState: AuthState = {
 	currentUser: null,
 	isLoggedIn: false,
-	errorMessage: null
+	errorMessage: null,
 };
 
 // Mock student test data
@@ -15,8 +15,8 @@ const mockStudents: MockStudent[] = [
 		name: 'Test',
 		emailID: 'test.mitblr2022@learner.manipal.edu',
 		department: 'Test',
-		password: 'test'
-	}
+		password: 'test',
+	},
 ];
 
 // Writable store
@@ -36,7 +36,7 @@ function login(form: LoginForm) {
 	if (!student) {
 		authState.update((state) => ({
 			...state,
-			errorMessage: 'Invalid registration number or email ID'
+			errorMessage: 'Invalid registration number or email ID',
 		}));
 		return;
 	}
@@ -47,7 +47,7 @@ function login(form: LoginForm) {
 		...state,
 		currentUser: studentData,
 		isLoggedIn: true,
-		errorMessage: null
+		errorMessage: null,
 	}));
 }
 
@@ -55,7 +55,7 @@ function login(form: LoginForm) {
 function register(form: RegisterForm) {
 	authState.update((state) => ({
 		...state,
-		errorMessage: null
+		errorMessage: null,
 	}));
 }
 
@@ -72,7 +72,7 @@ function createAuthStore() {
 		subscribe,
 		login,
 		register,
-		logout
+		logout,
 	};
 }
 

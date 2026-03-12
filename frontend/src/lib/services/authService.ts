@@ -2,7 +2,7 @@ import { authStore } from '$lib/stores/authStore';
 import type { LoginForm, RegisterForm } from '$lib/types';
 
 // All functions are temporary until backend is connected via API
-export async function register(form: RegisterForm):Promise<boolean> {
+export async function register(form: RegisterForm): Promise<boolean> {
 	try {
 		authStore.register(form);
 		return true;
