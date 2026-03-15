@@ -9,6 +9,15 @@
 		@apply w-full rounded-lg border border-slate-300 px-4 py-2 transition-all outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500;
 	}
 	.button-primary {
-		@apply w-full rounded-lg bg-indigo-600 py-2 font-semibold text-white transition-colors duration-200 hover:bg-indigo-700;
+		@apply rounded-lg bg-indigo-600 py-2 font-semibold text-white transition-colors duration-200 hover:bg-indigo-700;
+	}
+	.chat-bubble {
+		@apply max-w-[80%] rounded-2xl border px-4 py-4 text-sm shadow-sm transition-all;
+	}
+	.chat-bubble-user {
+		@apply self-end rounded-br-none border-indigo-500 bg-indigo-600 text-white;
+	}
+	.chat-bubble-assistant {
+		@apply self-start rounded-bl-none border-slate-200 bg-white text-slate-800;
 	}
 }
