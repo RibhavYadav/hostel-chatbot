@@ -107,7 +107,7 @@
 			{/if}
 
 			<!-- Register -->
-			<button type="submit" class="button-primary" disabled={isLoading}>
+			<button type="submit" class="button-primary w-full" disabled={isLoading}>
 				{isLoading ? 'Please wait...' : 'Register'}
 			</button>
 		</form>

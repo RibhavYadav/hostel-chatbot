@@ -91,7 +91,7 @@
 			{/if}
 
 			<!-- Sign in -->
-			<button type="submit" class="button-primary" disabled={isLoading}>
+			<button type="submit" class="button-primary w-full" disabled={isLoading}>
 				{isLoading ? 'Please wait...' : 'Sign In'}
 			</button>
 		</form>
