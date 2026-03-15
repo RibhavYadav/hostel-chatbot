@@ -27,7 +27,7 @@ function login(form: LoginForm) {
 	// Student identity check through registration number and email ID
 	const student = mockStudents.find(
 		(s) =>
-			s.registrationNumber === form.registrationNumber &&
+			s.registrationNumber === Number(form.registrationNumber) &&
 			s.emailID === form.emailID &&
 			s.password === form.password
 	);
