@@ -34,14 +34,6 @@ export interface ChatMessage {
 	timestamp: Date;
 }
 
-export interface LeaveRequest {
-	registrationNumber: number;
-	startDate: string;
-	endDate: string;
-	reason: string;
-	status: 'pending' | 'approved' | 'rejected';
-}
-
 export interface Intent {
 	tag: string;
 	confidence: number;
@@ -51,4 +43,10 @@ export interface BotResponse {
 	message: string;
 	intent: Intent;
 	requiresForm: boolean;
+}
+
+export interface ChatState {
+	readonly messages: ChatMessage[];
+	readonly isTyping: boolean;
+	readonly errorMessage: string | null;
 }
