@@ -3,7 +3,6 @@
 venv/
 env/
 
-
 # Python Version
 *.pyc
 *.pyo
@@ -11,15 +10,19 @@ env/
 __pycache__/
 *.py[cod]
 
-# TensorFlow / Model Artifacts
+# TensorFlow Model Artifacts
 *.h5
 *.pkl
 *.ckpt
 *.pb
 saved_model/
 training_checkpoints/
+ml/trained/
 
-# NLTK Downloaded Data
+# Data
+data/student_data.csv
+app/knowledge_base/intents.json
+hostel.db
 nltk_data/
 
 # Environment Variables
@@ -42,3 +45,6 @@ logs/
 # OS
 .DS_Store
 Thumbs.db
+
+# Ruff
+.ruff_cache/
