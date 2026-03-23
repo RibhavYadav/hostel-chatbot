@@ -4,6 +4,7 @@ from app.services.nlp_service import predict_intent, get_response
 
 router = APIRouter()
 
+
 @router.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     intent = predict_intent(request.message)
@@ -11,9 +12,6 @@ async def chat(request: ChatRequest):
 
     return ChatResponse(
         message=response_message,
-        intent=IntentResult(
-            tag=intent["tag"],
-            confidence=intent["confidence"]
-        ),
-        requires_form=intent["tag"] == "leave_request"
+        intent=IntentResult(tag=intent["tag"], confidence=intent["confidence"]),
+        requiresForm=intent["tag"] == "leave_request",
     )
