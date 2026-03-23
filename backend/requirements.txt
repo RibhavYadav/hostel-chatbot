@@ -11,3 +11,7 @@ pydantic
 python-dotenv
 pytest
 httpx
+sqlalchemy
+bcrypt
+python-jose[cryptography]
+ruff
