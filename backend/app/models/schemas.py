@@ -47,14 +47,14 @@ class ChatResponse(BaseModel):
     requiresForm: bool
 
 
-# Exit
-class ExitRequestCreate(BaseModel):
+# Leave
+class LeaveRequestCreate(BaseModel):
     departureDate: date
     returnDate: date
     reason: str
 
 
-class ExitRequestResponse(BaseModel):
+class LeaveRequestResponse(BaseModel):
     id: int
     studentId: int
     departureDate: date
