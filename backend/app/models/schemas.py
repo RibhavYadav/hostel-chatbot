@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from typing import List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 
 # Student auth
@@ -126,3 +126,139 @@ class LeaveRequestResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# Admin auth
+class AdminRegisterRequest(BaseModel):
+    """
+    Request body for admin registration.
+    email and adminTeam are validated against the AdminData table.
+    Both must match an existing record before the account is created.
+    """
+
+    emailID: str
+    adminTeam: str
+    password: str
+    confirmPassword: str
+
+
+class AdminLoginRequest(BaseModel):
+    """
+    Request body for admin login.
+    Returns a JWT token with email and adminTeam claims on success.
+    """
+
+    emailID: str
+    password: str
+
+
+class AdminResponse(BaseModel):
+    """
+    Admin data returned after login or registration.
+    Does not include the hashed password.
+    """
+
+    emailID: str
+    adminTeam: str
+
+
+class AdminTokenResponse(BaseModel):
+    """
+    Returned after successful admin login.
+    access_token is a JWT signed with the same secret as student tokens.
+    admin carries the admin's profile for the frontend session.
+    """
+
+    access_token: str
+    token_type: str = "bearer"
+    admin: AdminResponse
+
+
+# Password change
+class ChangePasswordRequest(BaseModel):
+    """
+    Request body for password change for both students and admins.
+    currentPassword is verified against the stored hash before
+    the new password is applied. newPassword and confirmNewPassword
+    must match or the request is rejected.
+    """
+
+    currentPassword: str
+    newPassword: str
+    confirmNewPassword: str
+
+
+# Chat log
+class ChatLogResponse(BaseModel):
+    """
+    A single chat log entry returned to admins for review.
+    promoted=False means this message is pending review.
+    promoted=True means it has already been added as a training pattern.
+    """
+
+    id: int
+    studentId: int
+    message: str
+    predictedTag: str
+    confidence: float
+    botResponse: str
+    timestamp: datetime
+    promoted: bool
+
+    class Config:
+        from_attributes = True
+
+
+# Intent management
+class IntentModel(BaseModel):
+    """
+    Used when returning the full intent list to admins.
+    Represents a single intent as it exists in intents.json.
+    """
+
+    tag: str
+    patterns: List[str]
+    responses: List[str]
+
+
+class IntentCreateRequest(BaseModel):
+    """
+    Request body for adding a new intent.
+    All three fields are required, a new intent must have
+    at least one pattern and one response to be valid for training.
+    """
+
+    tag: str
+    patterns: List[str]
+    responses: List[str]
+
+
+class IntentUpdateRequest(BaseModel):
+    """
+    Request body for updating an existing intent.
+    Both fields are optional, the admin may update only patterns,
+    only responses, or both in a single request.
+    Fields that are None are left unchanged.
+    """
+
+    patterns: Optional[List[str]] = None
+    responses: Optional[List[str]] = None
+
+
+# Leave request status
+class LeaveStatusUpdate(BaseModel):
+    """
+    Request body for approving or rejecting a leave request.
+    Only status can be changed by an admin after submission.
+    Accepted values are 'approved' or 'rejected' only.
+    """
+
+    status: str
+
+    @field_validator("status")
+    @classmethod
+    def status_validation(cls, value):
+        """Ensures status can only be set to approved or rejected."""
+        if value not in ("approved", "rejected"):
+            raise ValueError("Status must be 'approved' or 'rejected'.")
+        return value
