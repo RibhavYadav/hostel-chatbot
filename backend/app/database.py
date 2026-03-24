@@ -31,25 +31,29 @@ def get_db():
 # Database initialization
 def init_db():
     """
-    Called once at the start of FastAPI.
-    Creates all tables if required.
-    Loads student data into admin_students table if it is empty.
+    Called once at FastAPI startup via the on_startup event in main.py.
+    Creates all database tables if they do not already exist.
+    Loads student_data.csv into the admin_students table on first run.
+    Loads admin_data.csv into the admin_data table on first run.
+    Both CSV loads are skipped if the respective table already has rows,
+    preventing duplicate inserts on subsequent server restarts.
     """
-    from app.models.db_models import AdminStudent
+    from app.models.db_models import AdminData, AdminStudent
 
     Base.metadata.create_all(bind=engine)
     print("Database tables created.")
 
     db = SessionLocal()
     try:
+        # Student CSV loading
         if db.query(AdminStudent).count() == 0:
-            csv_path = os.path.join(
+            student_csv_path = os.path.join(
                 os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                 "data",
                 "student_data.csv",
             )
-            if os.path.exists(csv_path):
-                with open(csv_path, "r") as f:
+            if os.path.exists(student_csv_path):
+                with open(student_csv_path, "r") as f:
                     reader = csv.DictReader(f)
                     for row in reader:
                         admin_student = AdminStudent(
@@ -63,5 +67,26 @@ def init_db():
                 print("Admin student data loaded from CSV.")
             else:
                 print("Warning: data/student_data.csv not found. Admin table is empty.")
+
+        # Admin CSV loading
+        if db.query(AdminData).count() == 0:
+            admin_csv_path = os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                "data",
+                "admin_data.csv",
+            )
+            if os.path.exists(admin_csv_path):
+                with open(admin_csv_path, "r") as f:
+                    reader = csv.DictReader(f)
+                    for row in reader:
+                        admin_data = AdminData(
+                            email=row["email"],
+                            admin_team=row["admin_team"],
+                        )
+                        db.add(admin_data)
+                db.commit()
+                print("Admin data loaded from CSV.")
+            else:
+                print("Warning: data/admin_data.csv not found. Admin table is empty.")
     finally:
         db.close()
