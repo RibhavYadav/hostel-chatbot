@@ -3,8 +3,14 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.db_models import AdminStudent, Student
-from app.models.schemas import LoginRequest, RegisterRequest, StudentResponse, TokenResponse
-from app.services.auth_service import create_access_token, hash_password, verify_password
+from app.models.schemas import (
+    ChangePasswordRequest,
+    LoginRequest,
+    RegisterRequest,
+    StudentResponse,
+    TokenResponse,
+)
+from app.services.auth_service import create_access_token, get_current_student, hash_password, verify_password
 
 router = APIRouter()
 
@@ -12,14 +18,17 @@ router = APIRouter()
 @router.post("/register", response_model=dict)
 def register(request: RegisterRequest, db: Session = Depends(get_db)):
     """
-    Register a new student account.
+    Register a new student account. Validates registration number against AdminStudent table,
+    the number myst exist in the admin database.
+    Validates submitted email matches the record for the registration number.
+    Rejects the request if an account for the registration number already exists to prevent
+    duplicates.
+    Name and department are pulled from the admin record.
     """
 
     # Validate registration number with the admin dataset
     admin_record = (
-        db.query(AdminStudent)
-        .filter(AdminStudent.registration_number == request.registrationNumber)
-        .first()
+        db.query(AdminStudent).filter(AdminStudent.registration_number == request.registrationNumber).first()
     )
 
     if not admin_record:
@@ -33,14 +42,10 @@ def register(request: RegisterRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=403, detail="Email does not match our records.")
 
     # Check if account already exists
-    existing = (
-        db.query(Student).filter(Student.registration_number == request.registrationNumber).first()
-    )
+    existing = db.query(Student).filter(Student.registration_number == request.registrationNumber).first()
 
     if existing:
-        raise HTTPException(
-            status_code=409, detail="An account for this registration number already exists."
-        )
+        raise HTTPException(status_code=409, detail="An account for this registration number already exists.")
 
     # Validate passwords
     if request.password != request.confirmPassword:
@@ -65,12 +70,13 @@ def register(request: RegisterRequest, db: Session = Depends(get_db)):
 def login(request: LoginRequest, db: Session = Depends(get_db)):
     """
     Authenticate a student and return a JWT token.
+    Verifies email and password for the registration number in use.
+    'Invalid credentials' is returned on failed matches to avoid leakage of fields.
+    Returns a TokenResponse containing the signed JWT token and student profile for the frontend.
     """
 
     # Find student account
-    student = (
-        db.query(Student).filter(Student.registration_number == request.registrationNumber).first()
-    )
+    student = db.query(Student).filter(Student.registration_number == request.registrationNumber).first()
 
     if not student:
         raise HTTPException(status_code=401, detail="Invalid credentials.")
@@ -96,3 +102,35 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
             department=student.department,
         ),
     )
+
+
+@router.post("/change-password", response_model=dict)
+def change_password(
+    request: ChangePasswordRequest,
+    current_student: Student = Depends(get_current_student),
+    db: Session = Depends(get_db),
+):
+    """
+    Changes the password for the authenticated student.
+    Current password is verified before applying the change.
+    Validates that the new password differs from the current one,
+    newPassword and confirmPassword are matched before updating database.
+    """
+
+    # Verify current password
+    if not verify_password(request.currentPassword, current_student.hashed_password):
+        raise HTTPException(status_code=400, detail="Current password is incorrect.")
+
+    # Verify new passwords match
+    if request.newPassword != request.confirmNewPassword:
+        raise HTTPException(status_code=400, detail="New password does not match.")
+
+    # Verify new password does not match current password
+    if verify_password(request.newPassword, current_student.hashed_password):
+        raise HTTPException(status_code=400, detail="New password must not match the current password.")
+
+    # Update password
+    current_student.hashed_password = hash_password(request.newPassword)
+    db.commit()
+
+    return {"message": "Password changed successfully."}
