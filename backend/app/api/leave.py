@@ -45,12 +45,11 @@ def submit_leave(
 
 
 @router.get("/status", response_model=list[LeaveRequestResponse])
-def get_leave_status(
-    current_student: Student = Depends(get_current_student), db: Session = Depends(get_db)
-):
+def get_leave_status(current_student: Student = Depends(get_current_student), db: Session = Depends(get_db)):
     """
     Returns all leave requests for the authenticated student. Most recent one is returned first.
     """
+
     requests = (
         db.query(LeaveRequest)
         .filter(LeaveRequest.student_id == current_student.id)

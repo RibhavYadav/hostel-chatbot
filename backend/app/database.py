@@ -21,6 +21,7 @@ def get_db():
     Yields a database session for a single request.
     Closes the session when the request is done.
     """
+
     db = SessionLocal()
     try:
         yield db

@@ -22,6 +22,7 @@ def chat(
     Every message and its prediction are logged to the chat_logs table.
     Log failures do not affect the response returned to the student.
     """
+
     intent = predict_intent(request.message)
     response_message = get_response(intent["tag"])
 
