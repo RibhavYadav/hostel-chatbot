@@ -5,10 +5,6 @@ export interface Student {
 	department: string;
 }
 
-export interface MockStudent extends Student {
-	password: string;
-}
-
 export interface LoginForm {
 	registrationNumber: number;
 	emailID: string;
@@ -25,6 +21,12 @@ export interface RegisterForm {
 export interface AuthState {
 	readonly currentUser: Student | null;
 	readonly isLoggedIn: boolean;
+	readonly errorMessage: string | null;
+}
+
+export interface ChatState {
+	readonly messages: ChatMessage[];
+	readonly isTyping: boolean;
 	readonly errorMessage: string | null;
 }
 
@@ -45,8 +47,24 @@ export interface BotResponse {
 	requiresForm: boolean;
 }
 
-export interface ChatState {
-	readonly messages: ChatMessage[];
-	readonly isTyping: boolean;
-	readonly errorMessage: string | null;
+export interface TokenResponse {
+	access_token: string;
+	token_type: string;
+	student: Student;
+}
+
+export interface LeaveRequest {
+	departureDate: string;
+	returnDate: string;
+	reason: string;
+}
+
+export interface LeaveResponse {
+	id: number;
+	studentId: number;
+	departureDate: string;
+	returnDate: string;
+	reason: string;
+	status: 'pending' | 'approved' | 'rejected';
+	submittedAt: string;
 }
