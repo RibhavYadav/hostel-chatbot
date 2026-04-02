@@ -1,8 +1,14 @@
-import type { BotResponse, TokenResponse, LeaveRequest, LeaveResponse } from '$lib/types';
+import type {
+	BotResponse,
+	TokenResponse,
+	AdminTokenResponse,
+	LeaveRequest,
+	LeaveResponse,
+} from '$lib/types';
 
 /**
  * Base URL for all backend API requests.
- * Reads from the BITE_API_URL environment variable if set,
+ * Reads from the VITE_API_URL environment variable if set,
  * otherwise fall back to local backend development server.
  */
 const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000';
@@ -34,6 +40,31 @@ export function clearToken(): void {
 	localStorage.removeItem('auth_token');
 }
 
+/**
+ * Saves the admin JWT token to localStorage under a separate key.
+ * Kept separate from the student token so both sessions can
+ * coexist without overwriting each other.
+ */
+export function saveAdminToken(token: string): void {
+	localStorage.setItem('admin_auth_token', token);
+}
+
+/**
+ * Retrieves the JWT token from localStorage.
+ * Returns null if the user is not logged in or the token has been cleared.
+ */
+export function getAdminToken(): string | null {
+	return localStorage.getItem('admin_auth_token');
+}
+
+/**
+ * Removes the JWT token from localStorage.
+ * Called on logout to ensure the token cannot be reused.
+ */
+export function clearAdminToken(): void {
+	localStorage.removeItem('admin_auth_token');
+}
+
 // Auth header builder
 
 /**
@@ -45,6 +76,17 @@ function authHeaders(): Record<string, string> {
 	const token = getToken();
 	if (!token) return {};
 
+	return { Authorization: `Bearer ${token}` };
+}
+
+/**
+ * Builds the Authorization header for protected endpoint requests.
+ * Returns an empty object if no token is stored so the spread
+ * operator in fetch calls adds nothing when the user is not logged in.
+ */
+function adminAuthHeaders(): Record<string, string> {
+	const token = getAdminToken();
+	if (!token) return {};
 	return { Authorization: `Bearer ${token}` };
 }
 
@@ -97,6 +139,48 @@ export async function loginStudent(
 		throw new Error(error.detail ?? 'Login failed.');
 	}
 
+	return response.json();
+}
+
+/**
+ * Registers a new admin account.
+ * Sends registration details to POST /admin/register.
+ * Throws an error with the backend detail message if registration fails.
+ */
+export async function registerAdmin(
+	emailID: string,
+	adminTeam: string,
+	password: string,
+	confirmPassword: string
+): Promise<{ message: string }> {
+	const response = await fetch(`${BASE_URL}/admin/register`, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ emailID, adminTeam, password, confirmPassword }),
+	});
+	if (!response.ok) {
+		const error = await response.json();
+		throw new Error(error.detail ?? 'Admin registration failed.');
+	}
+	return response.json();
+}
+
+/**
+ * Authenticates an admin and returns an AdminTokenResponse.
+ * Sends credentials to POST /admin/login.
+ * The returned access_token must be saved via saveAdminToken() immediately.
+ * Throws an error with the backend detail message if login fails.
+ */
+export async function loginAdmin(emailID: string, password: string): Promise<AdminTokenResponse> {
+	const response = await fetch(`${BASE_URL}/admin/login`, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ emailID, password }),
+	});
+	if (!response.ok) {
+		const error = await response.json();
+		throw new Error(error.detail ?? 'Admin login failed.');
+	}
 	return response.json();
 }
 
