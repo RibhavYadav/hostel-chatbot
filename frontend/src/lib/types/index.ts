@@ -68,3 +68,32 @@ export interface LeaveResponse {
 	status: 'pending' | 'approved' | 'rejected';
 	submittedAt: string;
 }
+
+export interface Admin {
+	emailID: string;
+	adminTeam: 'cso' | 'warden' | 'it';
+}
+
+export interface AdminTokenResponse {
+	access_token: string;
+	token_type: string;
+	admin: Admin;
+}
+
+export interface AdminAuthState {
+	readonly currentAdmin: Admin | null;
+	readonly isLoggedIn: boolean;
+	readonly errorMessage: string | null;
+}
+
+export interface AdminRegisterForm {
+	emailID: string;
+	adminTeam: string;
+	password: string;
+	confirmPassword: string;
+}
+
+export interface AdminLoginForm {
+	emailID: string;
+	password: string;
+}
