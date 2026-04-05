@@ -1,77 +1,90 @@
 import { writable } from 'svelte/store';
-import type { MockStudent, LoginForm, RegisterForm, AuthState } from '$lib/types';
+import { saveToken, getToken, clearToken } from '$lib/services/api';
+import type { AuthState, Student } from '$lib/types';
 
-// Initial user state data
-const initialState: AuthState = {
-	currentUser: null,
-	isLoggedIn: false,
-	errorMessage: null,
-};
+// Session restoration
+/**
+ * On store creation, checks localStorage for an existing token and student
+ * profile. Restores the session after a page reload without requiring
+ * the student to log in again.
+ */
+function getStoredStudent(): Student | null {
+	const stored = localStorage.getItem('auth_student');
 
-// Mock student test data
-const mockStudents: MockStudent[] = [
-	{
-		registrationNumber: 225890001,
-		name: 'Test',
-		emailID: 'test.mitblr2022@learner.manipal.edu',
-		department: 'Test',
-		password: 'test',
-	},
-];
+	if (!stored) return null;
 
-// Writable store
-const authState = writable<AuthState>(initialState);
+	try {
+		return JSON.parse(stored) as Student;
+	} catch {
+		return null;
+	}
+}
 
-// Login function
-function login(form: LoginForm) {
-	// Student identity check through registration number and email ID
-	const student = mockStudents.find(
-		(s) =>
-			s.registrationNumber === Number(form.registrationNumber) &&
-			s.emailID === form.emailID &&
-			s.password === form.password
-	);
+function buildInitialState(): AuthState {
+	const token = getToken();
+	const student = getStoredStudent();
 
-	// Error message set if the student is not found and login stopped
-	if (!student) {
-		authState.update((state) => ({
-			...state,
-			errorMessage: 'Invalid registration number or email ID',
-		}));
-		return;
+	if (token && student) {
+		return { currentUser: student, isLoggedIn: true, errorMessage: null };
 	}
 
-	// If found, store is updated with the student data
-	const { password: _, ...studentData } = student;
-	authState.update((state) => ({
-		...state,
-		currentUser: studentData,
-		isLoggedIn: true,
-		errorMessage: null,
-	}));
+	return { currentUser: null, isLoggedIn: false, errorMessage: null };
 }
 
-// Register function - temporary until backend is connected via API
-function register(form: RegisterForm) {
-	authState.update((state) => ({
-		...state,
-		errorMessage: null,
-	}));
+// Store and actions
+const authState = writable<AuthState>(buildInitialState());
+
+/**
+ * Sets the authenticated student in the store after a successful login.
+ * Saves the token to localStorage via saveToken and stores the student
+ * profile as JSON so the session survives page reloads.
+ */
+function loginSuccess(token: string, student: Student): void {
+	saveToken(token);
+	localStorage.setItem('auth_student', JSON.stringify(student));
+	authState.set({ currentUser: student, isLoggedIn: true, errorMessage: null });
 }
 
-// Logout function
-function logout() {
-	authState.set(initialState);
+/**
+ * Sets an error message in the store.
+ * Called by authService when a login or register API call fails.
+ * Leaves the current session state unchanged.
+ */
+function setError(message: string): void {
+	authState.update((state) => ({ ...state, errorMessage: message }));
 }
 
-// Auth store function and export
+/** Clears any existing error message from the store. */
+function clearError(): void {
+	authState.update((state) => ({ ...state, errorMessage: null }));
+}
+
+/**
+ * Clears the student session completely.
+ * Removes the token and stored student profile from localStorage.
+ * Resets the store to the logged-out state.
+ */
+function logout(): void {
+	clearToken();
+	localStorage.removeItem('auth_student');
+	authState.set({ currentUser: null, isLoggedIn: false, errorMessage: null });
+}
+
+// Export
+/**
+ * Svelte store for student authentication state.
+ * Subscribe to read currentUser, isLoggedIn, and errorMessage reactively.
+ * Use loginSuccess after a successful API login response.
+ * Use logout to clear the session.
+ * Use setError to display error messages from failed API calls.
+ */
 function createAuthStore() {
-	// Only subscribe allows to read the store data
 	const { subscribe } = authState;
 	return {
 		subscribe,
-		login,
-		register,
+		loginSuccess,
+		setError,
+		clearError,
 		logout,
 	};
 }
