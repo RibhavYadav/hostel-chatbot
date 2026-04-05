@@ -1,33 +1,55 @@
+import { loginStudent, registerStudent } from '$lib/services/api';
 import { authStore } from '$lib/stores/authStore';
 import type { LoginForm, RegisterForm } from '$lib/types';
 
-// All functions are temporary until backend is connected via API
+/**
+ * Registers a new student account.
+ * Calls POST /auth/register via api.ts.
+ * Clears any existing error on success.
+ * Sets an error message in authStore on failure.
+ * Returns true on success, false on failure.
+ */
 export async function register(form: RegisterForm): Promise<boolean> {
 	try {
-		authStore.register(form);
+		authStore.clearError();
+		await registerStudent(
+			form.registrationNumber,
+			form.emailID,
+			form.password,
+			form.confirmPassword
+		);
 		return true;
 	} catch (error) {
-		console.error('Registering failed: ', error);
+		authStore.setError(error instanceof Error ? error.message : 'Registration failed.');
 		return false;
 	}
 }
 
+/**
+ * Authenticates a student against the backend.
+ * Calls POST /auth/login via api.ts.
+ * On success calls authStore.loginSuccess to store the token and student profile.
+ * On failure sets an error message in authStore.
+ * Returns true on success, false on failure.
+ */
 export async function login(form: LoginForm): Promise<boolean> {
 	try {
-		authStore.login(form);
+		authStore.clearError();
+		const response = await loginStudent(form.registrationNumber, form.emailID, form.password);
+		authStore.loginSuccess(response.access_token, response.student);
 		return true;
 	} catch (error) {
-		console.error('Login failed: ', error);
+		authStore.setError(error instanceof Error ? error.message : 'Login failed.');
 		return false;
 	}
 }
 
+/**
+ * Logs out the current student.
+ * Clears the token and student profile from localStorage via authStore.logout.
+ * Returns true always.
+ */
 export async function logout(): Promise<boolean> {
-	try {
-		authStore.logout();
-		return true;
-	} catch (error) {
-		console.error('Logout failed: ', error);
-		return false;
-	}
+	authStore.logout();
+	return true;
 }
