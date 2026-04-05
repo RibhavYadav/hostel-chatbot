@@ -1,10 +1,18 @@
 <script lang="ts">
+	import { sendMessage } from '$lib/services/api';
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { chatStore } from '$lib/stores/chatStore';
 
 	let messageText = '';
 	let textAreaElement: HTMLTextAreaElement;
 
-	// Input area resize
+	/**
+	 * Svelte action that makes the textarea grow with its content.
+	 * Resets height to auto before measuring scrollHeight so shrinking
+	 * works correctly when the student deletes text.
+	 * Cleans up the event listener when the element is destroyed.
+	 */
 	function autoResize(area: HTMLTextAreaElement) {
 		const updateHeight = () => {
 			area.style.height = 'auto';
@@ -20,7 +28,10 @@
 		};
 	}
 
-	// Text sending
+	/**
+	 * Submits the message when Enter is pressed without Shift.
+	 * Shift+Enter inserts a newline instead of submitting.
+	 */
 	function handleKeyDown(e: KeyboardEvent) {
 		if (e.key === 'Enter' && !e.shiftKey) {
 			e.preventDefault();
@@ -28,46 +39,62 @@
 		}
 	}
 
-	// User message handling and sending
+	/**
+	 * Handles the full message submission flow.
+	 * Trims the input and returns early if empty.
+	 * Adds the user message to the store, clears the input,
+	 * shows the typing indicator, then calls botResponse.
+	 * Always hides the typing indicator in the finally block
+	 * regardless of whether botResponse succeeded or failed.
+	 */
 	async function handleSending() {
-		// Message trimming and returning if the message is empty
 		const content = messageText.trim();
 		if (!content) return;
 
-		// Adding user message to the chat store
-		chatStore.addMessage({
-			role: 'user',
-			content: content,
-		});
-
-		// Message set to empty
+		chatStore.addMessage({ role: 'user', content: content });
 		messageText = '';
 		chatStore.setTyping(true);
 
-		// Reset height after clearing text
 		if (textAreaElement) {
 			textAreaElement.style.height = 'auto';
 		}
 
-		// Message sent to the bot for response
 		try {
 			await botResponse(content);
 		} finally {
-			// Indicator turned off after the bot response
 			chatStore.setTyping(false);
 		}
 	}
 
-	// Bot response to the user query
+	/**
+	 * Sends the student message to the backend NLP model.
+	 * Calls sendMessage from api.ts which attaches the JWT token automatically.
+	 * Adds the bot response text to the chat store on success.
+	 * If requiresForm is true the model detected a leave request intent -
+	 * the student is redirected to the leave form page automatically.
+	 * On failure sets a chat store error and adds a visible fallback message
+	 * so the student knows something went wrong.
+	 */
 	async function botResponse(query: string) {
-		// 1.5 seconds delay
-		await new Promise((done) => setTimeout(done, 1500));
+		try {
+			const response = await sendMessage(query);
+			chatStore.addMessage({
+				role: 'assistant',
+				content: response.message,
+			});
 
-		// Adding bot response to the chat store
-		chatStore.addMessage({
-			role: 'assistant',
-			content: `Response to "${query}"`,
-		});
+			if (response.requiresForm) {
+				await goto(resolve('/leave'));
+			}
+		} catch (error) {
+			const message = error instanceof Error ? error.message : 'Something went wrong.';
+			chatStore.setError(message);
+
+			chatStore.addMessage({
+				role: 'assistant',
+				content: 'Sorry, I could not process your request. Please try again.',
+			});
+		}
 	}
 </script>
 
