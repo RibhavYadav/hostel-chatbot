@@ -4,6 +4,7 @@ import type {
 	AdminTokenResponse,
 	LeaveRequest,
 	LeaveResponse,
+	ChatLogEntry,
 } from '$lib/types';
 
 /**
@@ -184,7 +185,7 @@ export async function loginAdmin(emailID: string, password: string): Promise<Adm
 	return response.json();
 }
 
-// Chat endpoint
+// Leave and chat endpoints
 
 /**
  * Sends a student message to the NLP model and returns the bot response.
@@ -209,8 +210,6 @@ export async function sendMessage(message: string): Promise<BotResponse> {
 
 	return response.json();
 }
-
-// Leave endpoints
 
 /**
  * Submits a new leave request for the authenticated student.
@@ -256,5 +255,45 @@ export async function getLeaveStatus(): Promise<LeaveResponse[]> {
 		throw new Error(error.detail ?? 'Failed to fetch leave status.');
 	}
 
+	return response.json();
+}
+
+/**
+ * Fetches all leave requests for admin review.
+ * Calls GET /admin/leave/all with the admin JWT token.
+ * Accessible by cso and warden teams only.
+ */
+export async function adminGetLeaveRequests(): Promise<LeaveResponse[]> {
+	const response = await fetch(`${BASE_URL}/admin/leave/all`, {
+		method: 'GET',
+		headers: { ...adminAuthHeaders() },
+	});
+	if (!response.ok) {
+		const error = await response.json();
+		throw new Error(error.detail ?? 'Failed to fetch leave requests.');
+	}
+	return response.json();
+}
+
+/**
+ * Fetches all student chat logs for admin review.
+ * Calls GET /admin/chat-logs with the admin JWT token.
+ * Optional promoted filter: true returns only promoted logs,
+ * false returns only unpromoted logs, omit for all logs.
+ * Accessible by cso and it teams only.
+ */
+export async function adminGetChatLogs(promoted?: boolean): Promise<ChatLogEntry[]> {
+	const url =
+		promoted !== undefined
+			? `${BASE_URL}/admin/chat-logs?promoted=${promoted}`
+			: `${BASE_URL}/admin/chat-logs`;
+	const response = await fetch(url, {
+		method: 'GET',
+		headers: { ...adminAuthHeaders() },
+	});
+	if (!response.ok) {
+		const error = await response.json();
+		throw new Error(error.detail ?? 'Failed to fetch chat logs.');
+	}
 	return response.json();
 }

@@ -97,3 +97,14 @@ export interface AdminLoginForm {
 	emailID: string;
 	password: string;
 }
+
+export interface ChatLogEntry {
+	id: number;
+	studentId: number;
+	message: string;
+	predictedTag: string;
+	confidence: number;
+	botResponse: string;
+	timestamp: string;
+	promoted: boolean;
+}
