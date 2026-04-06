@@ -43,6 +43,11 @@
 		if (status === 'rejected') return 'bg-red-100 text-red-800';
 		return 'bg-yellow-100 text-yellow-800';
 	}
+
+	/** Capitalizes the first letter of a status string for display. */
+	function formatStatus(status: string): string {
+		return status.charAt(0).toUpperCase() + status.slice(1);
+	}
 </script>
 
 <div class="space-y-6">
@@ -81,7 +86,7 @@
 								class="rounded-full px-2 py-0.5 text-xs font-semibold {statusClass(
 									request.status
 								)}">
-								{request.status}
+								{formatStatus(request.status)}
 							</span>
 							{#if request.status === 'pending'}
 								<div class="flex gap-2">
