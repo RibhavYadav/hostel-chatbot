@@ -4,6 +4,7 @@ load_dotenv()
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBearer
 
 from app.api.admin import router as admin_router
 from app.api.admin_auth import router as admin_auth_router
@@ -12,8 +13,10 @@ from app.api.chat import router as chat_router
 from app.api.leave import router as leave_router
 from app.database import init_db
 
-app = FastAPI(title="Hostel Chatbot API")
-
+app = FastAPI(
+    title="Hostel Chatbot API",
+    swagger_ui_init_oauth={},
+)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
