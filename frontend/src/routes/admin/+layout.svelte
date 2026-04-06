@@ -1,10 +1,12 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
 	import { adminAuthStore } from '$lib/stores/adminAuthStore';
 	import { logoutAdmin } from '$lib/services/adminAuthService';
 
 	let { children } = $props();
+	const publicPaths = ['/admin/login', '/admin/register'];
 
 	/** Logs out the admin and redirects to the admin login page. */
 	async function handleLogout() {
@@ -19,7 +21,7 @@
 </script>
 
 <!-- Skip layout for login and register pages -->
-{#if !$adminAuthStore.isLoggedIn}
+{#if !$adminAuthStore.isLoggedIn || publicPaths.includes(page.url.pathname)}
 	{@render children()}
 {:else}
 	<div class="flex min-h-screen bg-slate-50">
