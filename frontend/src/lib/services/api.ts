@@ -159,10 +159,12 @@ export async function registerAdmin(
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ emailID, adminTeam, password, confirmPassword }),
 	});
+
 	if (!response.ok) {
 		const error = await response.json();
 		throw new Error(error.detail ?? 'Admin registration failed.');
 	}
+
 	return response.json();
 }
 
@@ -178,10 +180,12 @@ export async function loginAdmin(emailID: string, password: string): Promise<Adm
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ emailID, password }),
 	});
+
 	if (!response.ok) {
 		const error = await response.json();
 		throw new Error(error.detail ?? 'Admin login failed.');
 	}
+
 	return response.json();
 }
 
@@ -258,6 +262,8 @@ export async function getLeaveStatus(): Promise<LeaveResponse[]> {
 	return response.json();
 }
 
+// Admin endpoints
+
 /**
  * Fetches all leave requests for admin review.
  * Calls GET /admin/leave/all with the admin JWT token.
@@ -268,10 +274,12 @@ export async function adminGetLeaveRequests(): Promise<LeaveResponse[]> {
 		method: 'GET',
 		headers: { ...adminAuthHeaders() },
 	});
+
 	if (!response.ok) {
 		const error = await response.json();
 		throw new Error(error.detail ?? 'Failed to fetch leave requests.');
 	}
+
 	return response.json();
 }
 
@@ -287,13 +295,56 @@ export async function adminGetChatLogs(promoted?: boolean): Promise<ChatLogEntry
 		promoted !== undefined
 			? `${BASE_URL}/admin/chat-logs?promoted=${promoted}`
 			: `${BASE_URL}/admin/chat-logs`;
+
 	const response = await fetch(url, {
 		method: 'GET',
 		headers: { ...adminAuthHeaders() },
 	});
+
 	if (!response.ok) {
 		const error = await response.json();
 		throw new Error(error.detail ?? 'Failed to fetch chat logs.');
 	}
+
+	return response.json();
+}
+
+/**
+ * Promotes a chat log message as a training pattern for its predicted intent.
+ * Calls POST /admin/promote/{log_id} with the admin JWT token.
+ * Marks the log as promoted so it does not appear in the review queue again.
+ * Accessible by cso and it teams only.
+ */
+export async function adminPromoteChatLog(logId: number): Promise<{ message: string }> {
+	const response = await fetch(`${BASE_URL}/admin/promote/${logId}`, {
+		method: 'POST',
+		headers: { ...adminAuthHeaders() },
+	});
+
+	if (!response.ok) {
+		const error = await response.json();
+		throw new Error(error.detail ?? 'Failed to promote chat log.');
+	}
+
+	return response.json();
+}
+
+/**
+ * Triggers model retraining using the current intents.json.
+ * Calls POST /admin/retrain with the admin JWT token.
+ * Returns a message confirming the retrain and reload status.
+ * Accessible by cso and it teams only.
+ */
+export async function adminRetrain(): Promise<{ message: string; detail: string }> {
+	const response = await fetch(`${BASE_URL}/admin/retrain`, {
+		method: 'POST',
+		headers: { ...adminAuthHeaders() },
+	});
+
+	if (!response.ok) {
+		const error = await response.json();
+		throw new Error(error.detail ?? 'Retraining failed.');
+	}
+
 	return response.json();
 }
