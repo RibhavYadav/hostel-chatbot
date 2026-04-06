@@ -5,6 +5,7 @@ import type {
 	LeaveRequest,
 	LeaveResponse,
 	ChatLogEntry,
+	IntentEntry,
 } from '$lib/types';
 
 /**
@@ -267,7 +268,7 @@ export async function getLeaveStatus(): Promise<LeaveResponse[]> {
 /**
  * Fetches all leave requests for admin review.
  * Calls GET /admin/leave/all with the admin JWT token.
- * Accessible by cso and warden teams only.
+ * Accessible by CSO and Warden teams only.
  */
 export async function adminGetLeaveRequests(): Promise<LeaveResponse[]> {
 	const response = await fetch(`${BASE_URL}/admin/leave/all`, {
@@ -288,7 +289,7 @@ export async function adminGetLeaveRequests(): Promise<LeaveResponse[]> {
  * Calls GET /admin/chat-logs with the admin JWT token.
  * Optional promoted filter: true returns only promoted logs,
  * false returns only unpromoted logs, omit for all logs.
- * Accessible by cso and it teams only.
+ * Accessible by CSO and IT teams only.
  */
 export async function adminGetChatLogs(promoted?: boolean): Promise<ChatLogEntry[]> {
 	const url =
@@ -313,7 +314,7 @@ export async function adminGetChatLogs(promoted?: boolean): Promise<ChatLogEntry
  * Promotes a chat log message as a training pattern for its predicted intent.
  * Calls POST /admin/promote/{log_id} with the admin JWT token.
  * Marks the log as promoted so it does not appear in the review queue again.
- * Accessible by cso and it teams only.
+ * Accessible by CSO and IT teams only.
  */
 export async function adminPromoteChatLog(logId: number): Promise<{ message: string }> {
 	const response = await fetch(`${BASE_URL}/admin/promote/${logId}`, {
@@ -333,7 +334,7 @@ export async function adminPromoteChatLog(logId: number): Promise<{ message: str
  * Triggers model retraining using the current intents.json.
  * Calls POST /admin/retrain with the admin JWT token.
  * Returns a message confirming the retrain and reload status.
- * Accessible by cso and it teams only.
+ * Accessible by CSO and IT teams only.
  */
 export async function adminRetrain(): Promise<{ message: string; detail: string }> {
 	const response = await fetch(`${BASE_URL}/admin/retrain`, {
@@ -344,6 +345,131 @@ export async function adminRetrain(): Promise<{ message: string; detail: string 
 	if (!response.ok) {
 		const error = await response.json();
 		throw new Error(error.detail ?? 'Retraining failed.');
+	}
+
+	return response.json();
+}
+
+/**
+ * Fetches all intents from the NLP service.
+ * Calls GET /admin/intents with the admin JWT token.
+ * Returns the intents currently loaded in the server's NLP state.
+ * Accessible by CSO and IT teams only.
+ */
+export async function adminGetIntents(): Promise<IntentEntry[]> {
+	const response = await fetch(`${BASE_URL}/admin/intents`, {
+		method: 'GET',
+		headers: { ...adminAuthHeaders() },
+	});
+
+	if (!response.ok) {
+		const error = await response.json();
+		throw new Error(error.detail ?? 'Failed to fetch intents.');
+	}
+
+	return response.json();
+}
+
+/**
+ * Creates a new intent in intents.json.
+ * Calls POST /admin/intents with the admin JWT token.
+ * Throws if the tag already exists.
+ * Accessible by CSO and IT teams only.
+ */
+export async function adminCreateIntent(
+	tag: string,
+	patterns: string[],
+	responses: string[]
+): Promise<{ message: string }> {
+	const response = await fetch(`${BASE_URL}/admin/intents`, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			...adminAuthHeaders(),
+		},
+		body: JSON.stringify({ tag, patterns, responses }),
+	});
+
+	if (!response.ok) {
+		const error = await response.json();
+		throw new Error(error.detail ?? 'Failed to create intent.');
+	}
+
+	return response.json();
+}
+
+/**
+ * Updates the patterns or responses or both for an existing intent.
+ * Calls PUT /admin/intents/{tag} with the admin JWT token.
+ * Fields omitted from the request are left unchanged on the backend.
+ * Accessible by CSO and IT teams only.
+ */
+export async function adminUpdateIntent(
+	tag: string,
+	patterns?: string[],
+	responses?: string[]
+): Promise<{ message: string }> {
+	const response = await fetch(`${BASE_URL}/admin/intents/${tag}`, {
+		method: 'PUT',
+		headers: {
+			'Content-Type': 'application/json',
+			...adminAuthHeaders(),
+		},
+		body: JSON.stringify({
+			...(patterns !== undefined && { patterns }),
+			...(responses !== undefined && { responses }),
+		}),
+	});
+
+	if (!response.ok) {
+		const error = await response.json();
+		throw new Error(error.detail ?? 'Failed to update intent.');
+	}
+
+	return response.json();
+}
+
+/**
+ * Deletes an intent and all its patterns and responses from intents.json.
+ * Calls DELETE /admin/intents/{tag} with the admin JWT token.
+ * This action is irreversible. Restricted to CSO team only.
+ */
+export async function adminDeleteIntent(tag: string): Promise<{ message: string }> {
+	const response = await fetch(`${BASE_URL}/admin/intents/${tag}`, {
+		method: 'DELETE',
+		headers: { ...adminAuthHeaders() },
+	});
+
+	if (!response.ok) {
+		const error = await response.json();
+		throw new Error(error.detail ?? 'Failed to delete intent.');
+	}
+
+	return response.json();
+}
+
+/**
+ * Updates the status of a leave request to approved or rejected.
+ * Calls PUT /admin/leave/{leave_id}/status with the admin JWT token.
+ * Sets reviewed_at timestamp on the backend automatically.
+ * Accessible by CSO and Warden teams only.
+ */
+export async function adminUpdateLeaveStatus(
+	leaveId: number,
+	status: 'approved' | 'rejected'
+): Promise<{ message: string }> {
+	const response = await fetch(`${BASE_URL}/admin/leave/${leaveId}/status`, {
+		method: 'PUT',
+		headers: {
+			'Content-Type': 'application/json',
+			...adminAuthHeaders(),
+		},
+		body: JSON.stringify({ status }),
+	});
+
+	if (!response.ok) {
+		const error = await response.json();
+		throw new Error(error.detail ?? 'Failed to update leave status.');
 	}
 
 	return response.json();
