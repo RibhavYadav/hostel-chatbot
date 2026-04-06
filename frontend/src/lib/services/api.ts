@@ -16,6 +16,12 @@ import type {
 const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000';
 
 // Token storage
+/**
+ * Guard all localStorage calls with a browser check.
+ */
+function isBrowser(): boolean {
+	return typeof window !== 'undefined';
+}
 
 /**
  * Saves the JWT token to localStorage.
@@ -23,6 +29,7 @@ const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000';
  * Persists across page reloads and browser tabs.
  */
 export function saveToken(token: string): void {
+	if (!isBrowser()) return;
 	localStorage.setItem('auth_token', token);
 }
 
@@ -31,6 +38,7 @@ export function saveToken(token: string): void {
  * Returns null if the user is not logged in or the token has been cleared.
  */
 export function getToken(): string | null {
+	if (!isBrowser()) return null;
 	return localStorage.getItem('auth_token');
 }
 
@@ -39,6 +47,7 @@ export function getToken(): string | null {
  * Called on logout to ensure the token cannot be reused.
  */
 export function clearToken(): void {
+	if (!isBrowser()) return;
 	localStorage.removeItem('auth_token');
 }
 
@@ -48,6 +57,7 @@ export function clearToken(): void {
  * coexist without overwriting each other.
  */
 export function saveAdminToken(token: string): void {
+	if (!isBrowser()) return;
 	localStorage.setItem('admin_auth_token', token);
 }
 
@@ -56,6 +66,7 @@ export function saveAdminToken(token: string): void {
  * Returns null if the user is not logged in or the token has been cleared.
  */
 export function getAdminToken(): string | null {
+	if (!isBrowser()) return null;
 	return localStorage.getItem('admin_auth_token');
 }
 
@@ -64,6 +75,7 @@ export function getAdminToken(): string | null {
  * Called on logout to ensure the token cannot be reused.
  */
 export function clearAdminToken(): void {
+	if (!isBrowser()) return;
 	localStorage.removeItem('admin_auth_token');
 }
 
