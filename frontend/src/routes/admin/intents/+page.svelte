@@ -293,8 +293,8 @@
 							</div>
 							<p class="mt-2 text-xs font-medium text-slate-500">Responses</p>
 							<div class="space-y-1">
-								{#each intent.responses as response}
-									<p class="text-xs text-slate-600">— {response}</p>
+								{#each intent.responses as response, i}
+									<p class="text-xs text-slate-600">{i + 1}. {response}</p>
 								{/each}
 							</div>
 						</div>
