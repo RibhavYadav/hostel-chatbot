@@ -108,3 +108,9 @@ export interface ChatLogEntry {
 	timestamp: string;
 	promoted: boolean;
 }
+
+export interface IntentEntry {
+	tag: string;
+	patterns: string[];
+	responses: string[];
+}
