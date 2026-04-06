@@ -192,6 +192,34 @@ def update_intent(
     return {"message": f"Intent '{tag}' updated successfully."}
 
 
+@router.delete("/intents/{tag}", response_model=dict)
+def delete_intent(
+    tag: str,
+    admin: Admin = Depends(require_teams("cso")),
+):
+    """
+    Removes an intent and all its patterns and responses from intents.json.
+    This action is irreversible. The model must be retrained after deletion
+    for the change to take effect in predict_intent.
+    Restricted to CSO team only.
+    """
+    with open(INTENTS_PATH, "r") as f:
+        intents_data = json.load(f)
+
+    original_count = len(intents_data["intents"])
+    intents_data["intents"] = [i for i in intents_data["intents"] if i["tag"] != tag]
+
+    if len(intents_data["intents"]) == original_count:
+        raise HTTPException(status_code=404, detail=f"Intent tag '{tag}' not found.")
+
+    with open(INTENTS_PATH, "w") as f:
+        json.dump(intents_data, f, indent=2)
+
+    reload_intents()
+
+    return {"message": f"Intent '{tag}' deleted successfully."}
+
+
 @router.post("/retrain", response_model=dict)
 def retrain_model(admin: Admin = Depends(require_teams("cso", "it"))):
     """
