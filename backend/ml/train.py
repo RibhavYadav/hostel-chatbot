@@ -1,14 +1,15 @@
 import json
 import os
 import pickle
-import numpy
+
 import nltk
-from nltk.tokenize import word_tokenize
+import numpy
 from nltk.stem.lancaster import LancasterStemmer
+from nltk.tokenize import word_tokenize
 from tensorflow.keras.layers import Dense, Dropout
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.models import Sequential
 from tensorflow.keras.losses import CategoricalCrossentropy
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.optimizers import Adam
 
 # NLTK setup download
 nltk.download("punkt", quiet=True)
@@ -58,11 +59,11 @@ for intent in intents:
         tokens = word_tokenize(text.lower())
         stemmed = [stemmer.stem(w) for w in tokens if w not in ignore_characters]
 
-        # Bag of words: 1 if vocabulary word is in the pattern, else 0
+        # Bag of words 1 if vocabulary word is in the pattern, else 0
         bag = [1 if word in stemmed else 0 for word in vocabulary]
         training_sentences.append(bag)
 
-        # One hot label:
+        # One hot label
         label = [0] * len(classes)
         label[classes.index(intent["tag"])] = 1
         training_labels.append(label)
@@ -90,7 +91,7 @@ model.compile(
 model.summary()
 
 # Model training
-print(f"\nModel training has begun")
+print("\nModel training has begun")
 
 history = model.fit(X_train, y_train, epochs=200, batch_size=8, verbose=15)
 
