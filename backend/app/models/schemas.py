@@ -19,6 +19,22 @@ class RegisterRequest(BaseModel):
     password: str
     confirmPassword: str
 
+    @field_validator("password")
+    @classmethod
+    def password_requirements(cls, value: str) -> str:
+        """
+        Validates that the password meets minimum security requirements.
+        Must be at least 8 characters, contain one uppercase letter,
+        and contain one number. Applied before any database operations.
+        """
+        if len(value) < 8:
+            raise ValueError("Password must be at least 8 characters.")
+        if not any(c.isupper() for c in value):
+            raise ValueError("Password must contain at least one uppercase letter.")
+        if not any(c.isdigit() for c in value):
+            raise ValueError("Password must contain at least one number.")
+        return value
+
 
 class LoginRequest(BaseModel):
     """
@@ -141,6 +157,22 @@ class AdminRegisterRequest(BaseModel):
     password: str
     confirmPassword: str
 
+    @field_validator("password")
+    @classmethod
+    def password_requirements(cls, value: str) -> str:
+        """
+        Validates that the password meets minimum security requirements.
+        Must be at least 8 characters, contain one uppercase letter,
+        and contain one number. Applied before any database operations.
+        """
+        if len(value) < 8:
+            raise ValueError("Password must be at least 8 characters.")
+        if not any(c.isupper() for c in value):
+            raise ValueError("Password must contain at least one uppercase letter.")
+        if not any(c.isdigit() for c in value):
+            raise ValueError("Password must contain at least one number.")
+        return value
+
 
 class AdminLoginRequest(BaseModel):
     """
@@ -186,6 +218,22 @@ class ChangePasswordRequest(BaseModel):
     currentPassword: str
     newPassword: str
     confirmNewPassword: str
+
+    @field_validator("password")
+    @classmethod
+    def password_requirements(cls, value: str) -> str:
+        """
+        Validates that the password meets minimum security requirements.
+        Must be at least 8 characters, contain one uppercase letter,
+        and contain one number. Applied before any database operations.
+        """
+        if len(value) < 8:
+            raise ValueError("Password must be at least 8 characters.")
+        if not any(c.isupper() for c in value):
+            raise ValueError("Password must contain at least one uppercase letter.")
+        if not any(c.isdigit() for c in value):
+            raise ValueError("Password must contain at least one number.")
+        return value
 
 
 # Chat log
