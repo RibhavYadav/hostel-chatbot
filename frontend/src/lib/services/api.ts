@@ -125,6 +125,9 @@ export async function registerStudent(
 
 	if (!response.ok) {
 		const error = await response.json();
+		if (Array.isArray(error.detail)) {
+			throw new Error(error.detail.map((e: { msg: string }) => e.msg).join(' '));
+		}
 		throw new Error(error.detail ?? 'Registration failed.');
 	}
 
@@ -150,7 +153,10 @@ export async function loginStudent(
 
 	if (!response.ok) {
 		const error = await response.json();
-		throw new Error(error.detail ?? 'Login failed.');
+		if (Array.isArray(error.detail)) {
+			throw new Error(error.detail.map((e: { msg: string }) => e.msg).join(' '));
+		}
+		throw new Error(error.detail ?? 'Registration failed.');
 	}
 
 	return response.json();
@@ -175,7 +181,10 @@ export async function registerAdmin(
 
 	if (!response.ok) {
 		const error = await response.json();
-		throw new Error(error.detail ?? 'Admin registration failed.');
+		if (Array.isArray(error.detail)) {
+			throw new Error(error.detail.map((e: { msg: string }) => e.msg).join(' '));
+		}
+		throw new Error(error.detail ?? 'Registration failed.');
 	}
 
 	return response.json();
@@ -196,7 +205,10 @@ export async function loginAdmin(emailID: string, password: string): Promise<Adm
 
 	if (!response.ok) {
 		const error = await response.json();
-		throw new Error(error.detail ?? 'Admin login failed.');
+		if (Array.isArray(error.detail)) {
+			throw new Error(error.detail.map((e: { msg: string }) => e.msg).join(' '));
+		}
+		throw new Error(error.detail ?? 'Registration failed.');
 	}
 
 	return response.json();

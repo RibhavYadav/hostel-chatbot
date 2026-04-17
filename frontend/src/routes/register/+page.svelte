@@ -88,6 +88,7 @@
 				placeholder="********"
 				class="input-field"
 				required />
+			<p class="text-xs text-slate-400">Min. 8 characters, one uppercase letter, one number.</p>
 
 			<!-- Confirm password-->
 			<label for="confirmPassword" class="block text-sm font-medium text-slate-700">

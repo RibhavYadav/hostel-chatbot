@@ -89,30 +89,27 @@
 			</div>
 
 			<!-- Password -->
-			<div>
-				<label for="password" class="block text-sm font-medium text-slate-700"> Password </label>
-				<input
-					type="password"
-					id="password"
-					bind:value={form.password}
-					placeholder="********"
-					class="input-field"
-					required />
-			</div>
+			<label for="password" class="block text-sm font-medium text-slate-700"> Password </label>
+			<input
+				type="password"
+				id="password"
+				bind:value={form.password}
+				placeholder="********"
+				class="input-field"
+				required />
+			<p class="text-xs text-slate-400">Min. 8 characters, one uppercase letter, one number.</p>
 
 			<!-- Confirm password -->
-			<div>
-				<label for="confirmPassword" class="block text-sm font-medium text-slate-700">
-					Confirm Password
-				</label>
-				<input
-					type="password"
-					id="confirmPassword"
-					bind:value={form.confirmPassword}
-					placeholder="********"
-					class="input-field"
-					required />
-			</div>
+			<label for="confirmPassword" class="block text-sm font-medium text-slate-700">
+				Confirm Password
+			</label>
+			<input
+				type="password"
+				id="confirmPassword"
+				bind:value={form.confirmPassword}
+				placeholder="********"
+				class="input-field"
+				required />
 
 			{#if errorMessage}
 				<p class="text-sm text-red-500">{errorMessage}</p>
