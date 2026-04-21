@@ -33,8 +33,15 @@
 			<h1 class="text-lg font-bold text-slate-900">MAHE Chat</h1>
 		</div>
 
-		<nav class="flex items-center">
-			<button class="button-primary w-full px-8" type="button" onclick={handleLogout}> Logout </button>
+		<nav class="flex items-center gap-3">
+			<a
+				href={resolve('/change-password')}
+				class="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100">
+				Change Password
+			</a>
+			<button class="button-primary w-full px-8" type="button" onclick={handleLogout}>
+				Logout
+			</button>
 		</nav>
 	</header>
 
