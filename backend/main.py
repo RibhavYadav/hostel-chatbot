@@ -2,9 +2,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
 from app.api.admin import router as admin_router
 from app.api.admin_auth import router as admin_auth_router
@@ -13,10 +16,14 @@ from app.api.chat import router as chat_router
 from app.api.leave import router as leave_router
 from app.database import init_db
 
+limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(
     title="Hostel Chatbot API",
     swagger_ui_init_oauth={},
 )
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],

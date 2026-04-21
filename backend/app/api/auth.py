@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -12,6 +14,7 @@ from app.models.schemas import (
 )
 from app.services.auth_service import create_access_token, get_current_student, hash_password, verify_password
 
+limiter = Limiter(key_func=get_remote_address)
 router = APIRouter()
 
 
@@ -67,26 +70,29 @@ def register(request: RegisterRequest, db: Session = Depends(get_db)):
 
 
 @router.post("/login", response_model=TokenResponse)
-def login(request: LoginRequest, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def login(request: Request, payload: LoginRequest, db: Session = Depends(get_db)):
     """
     Authenticate a student and return a JWT token.
     Verifies email and password for the registration number in use.
-    'Invalid credentials' is returned on failed matches to avoid leakage of fields.
+    'Invalid credentials' is returned on failed matches.
     Returns a TokenResponse containing the signed JWT token and student profile for the frontend.
+    Token is valid for the duration set in JWT_EXPIRE_MINUTES.
+    Rate limited to 5 attempts per minute per IP address.
     """
 
     # Find student account
-    student = db.query(Student).filter(Student.registration_number == request.registrationNumber).first()
+    student = db.query(Student).filter(Student.registration_number == payload.registrationNumber).first()
 
     if not student:
         raise HTTPException(status_code=401, detail="Invalid credentials.")
 
     # Verify email
-    if student.email.lower() != request.emailID.lower():
+    if student.email.lower() != payload.emailID.lower():
         raise HTTPException(status_code=401, detail="Invalid credentials.")
 
     # Verify password
-    if not verify_password(request.password, student.hashed_password):
+    if not verify_password(payload.password, student.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials.")
 
     # Return token and student info

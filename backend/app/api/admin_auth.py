@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -17,6 +19,7 @@ from app.services.auth_service import (
     verify_password,
 )
 
+limiter = Limiter(key_func=get_remote_address)
 router = APIRouter()
 
 
@@ -63,7 +66,7 @@ def admin_register(request: AdminRegisterRequest, db: Session = Depends(get_db))
 
 
 @router.post("/login", response_model=AdminTokenResponse)
-def admin_login(request: AdminLoginRequest, db: Session = Depends(get_db)):
+def admin_login(request: Request, payload: AdminLoginRequest, db: Session = Depends(get_db)):
     """
     Authenticates an admin and returns a signed JWT token.
     Looks up the admin by email and verifies the password.
@@ -73,12 +76,12 @@ def admin_login(request: AdminLoginRequest, db: Session = Depends(get_db)):
     """
 
     # Find admin account
-    admin = db.query(Admin).filter(Admin.email == request.emailID.lower()).first()
+    admin = db.query(Admin).filter(Admin.email == payload.emailID.lower()).first()
     if not admin:
         raise HTTPException(status_code=401, detail="Invalid credentials.")
 
     # Verify password
-    if not verify_password(request.password, admin.hashed_password):
+    if not verify_password(payload.password, admin.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials.")
 
     # Return token and admin info
