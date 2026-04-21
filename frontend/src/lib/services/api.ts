@@ -529,3 +529,23 @@ export async function adminUpdateLeaveStatus(
 
 	return response.json();
 }
+
+/**
+ * Triggers rebuilding of the RAG document index from PDF files.
+ * Calls POST /admin/reindex with the admin JWT token.
+ * Run after adding or updating PDF files in the documents directory.
+ * Accessible by CSO and IT teams only.
+ */
+export async function adminReindex(): Promise<{ message: string; detail: string }> {
+	const response = await fetch(`${BASE_URL}/admin/reindex`, {
+		method: 'POST',
+		headers: { ...adminAuthHeaders() },
+	});
+
+	if (!response.ok) {
+		const error = await response.json();
+		throw new Error(error.detail ?? 'Reindex failed.');
+	}
+
+	return response.json();
+}
