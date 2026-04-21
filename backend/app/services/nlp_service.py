@@ -29,7 +29,6 @@ ignore_characters = {"?", "!", ".", ",", "'", '"', "-"}
 CONFIDENCE_THRESHOLD = 0.65
 
 
-# Model and assets loading
 def _load_assets() -> dict:
     """
     Loads the model, vocabulary, classes and intents.
@@ -61,7 +60,6 @@ _state = _load_assets()
 print(f"NLP service loaded: {len(_state['vocabulary'])} words, {len(_state['classes'])} intents.")
 
 
-# Model and assets reloading
 def reload_model() -> str:
     """
     Reloads all NLP assets into _state.
@@ -85,7 +83,6 @@ def reload_model() -> str:
         return f"Model reload failed: {str(e)}. Previous model remains active."
 
 
-# Inference
 def _bag_of_words(sentence: str) -> numpy.ndarray:
     """
     Converts a sentence into a bag of words vector by matching the vocabulary.
@@ -128,14 +125,33 @@ def predict_intent(sentence: str) -> dict:
     return {"tag": _state["classes"][best_index], "confidence": best_confidence}
 
 
-def get_response(tag: str) -> str:
+def get_response(tag: str, original_query: str = "") -> str:
     """
-    Intent tag is looked up in intents_data and returns a random response.
-    Falls back to default if tag is not found.
+    Returns the most accurate response for the given intent tag.
+    If a query is provided and the RAG index is available, searches
+    the document store for relevant content and returns that as the
+    response. Falls back to a random response from intents.json if
+    RAG finds nothing relevant or no query is provided.
+    The RAG result takes priority over intents.json to ensure
+    updated document content overrides stale fixed responses.
     """
+    # RAG retrieval
+    if original_query:
+        try:
+            from app.services.rag_service import retrieve
+
+            rag_result = retrieve(original_query)
+            if rag_result:
+                return rag_result
+
+        except Exception as e:
+            print(f"RAG retrieval failed, using fallback: {e}")
+
+    # Fall back to intents.json fixed response
     for intent in _state["intents_data"]["intents"]:
-        if intent["tag"] == tag and intent["responses"]:
-            return random.choice(intent["responses"])
+        if intent["tag"] == tag:
+            if intent["responses"]:
+                return random.choice(intent["responses"])
 
     return "I'm not sure how to help with that. Please contact the hostel office directly."
 
