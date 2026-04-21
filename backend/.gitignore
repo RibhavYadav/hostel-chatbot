@@ -20,9 +20,11 @@ training_checkpoints/
 ml/trained/
 
 # Data
+app/knowledge_base/documents/
+app/knowledge_base/index/
+app/knowledge_base/intents.json
 data/admin_data.csv
 data/student_data.csv
-app/knowledge_base/intents.json
 hostel.db
 nltk_data/
 
