@@ -19,6 +19,7 @@ INTENTS_PATH = os.path.join(BASE_DIR, "app", "knowledge_base", "intents.json")
 MODEL_PATH = os.path.join(BASE_DIR, "ml", "trained", "chatbot_model.h5")
 WORDS_PATH = os.path.join(BASE_DIR, "ml", "trained", "words.pkl")
 CLASSES_PATH = os.path.join(BASE_DIR, "ml", "trained", "classes.pkl")
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 # Stemmer and ignore list
 stemmer = LancasterStemmer()

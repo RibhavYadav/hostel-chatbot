@@ -219,7 +219,7 @@ class ChangePasswordRequest(BaseModel):
     newPassword: str
     confirmNewPassword: str
 
-    @field_validator("password")
+    @field_validator("newPassword")
     @classmethod
     def password_requirements(cls, value: str) -> str:
         """
