@@ -18,6 +18,7 @@ from app.models.schemas import (
 )
 from app.services.auth_service import require_teams
 from app.services.nlp_service import INTENTS_PATH, get_intents, reload_intents, reload_model
+from app.services.rag_service import build_index, reload_index
 
 router = APIRouter()
 
@@ -242,6 +243,20 @@ def retrain_model(admin: Admin = Depends(require_teams("cso", "it"))):
     reload_message = reload_model()
 
     return {"message": "Model retrained and reloaded successfully.", "detail": reload_message}
+
+
+@router.post("/reindex", response_model=dict)
+def reindex_documents(admin: Admin = Depends(require_teams("cso", "it"))):
+    """
+    Reads all PDF files from the documents directory, rebuilds the
+    RAG vector index, and reloads it into the running server.
+    Run this after adding or updating any PDF files in the knowledge_base/documents directory.
+    Accessible by CSO and IT teams only.
+    """
+    build_message = build_index()
+    reload_message = reload_index()
+
+    return {"message": "Document index rebuilt successfully.", "detail": f"{build_message} {reload_message}"}
 
 
 @router.get("/leave/all", response_model=list[LeaveRequestResponse])
