@@ -19,24 +19,22 @@
 		<div class="space-y-4">
 			<div class="space-y-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
 				<div>
-					<p class="text-xs font-medium tracking-wide text-slate-400 uppercase">Name</p>
+					<p class="text-xs font-medium text-slate-400">Name</p>
 					<p class="mt-0.5 text-sm font-medium text-slate-800">{student.name}</p>
 				</div>
 
 				<div>
-					<p class="text-xs font-medium tracking-wide text-slate-400 uppercase">
-						Registration Number
-					</p>
+					<p class="text-xs font-medium text-slate-400">Registration Number</p>
 					<p class="mt-0.5 text-sm font-medium text-slate-800">{student.registrationNumber}</p>
 				</div>
 
 				<div>
-					<p class="text-xs font-medium tracking-wide text-slate-400 uppercase">Email</p>
+					<p class="text-xs font-medium text-slate-400">Email</p>
 					<p class="mt-0.5 text-sm font-medium text-slate-800">{student.emailID}</p>
 				</div>
 
 				<div>
-					<p class="text-xs font-medium tracking-wide text-slate-400 uppercase">Department</p>
+					<p class="text-xs font-medium text-slate-400">Department</p>
 					<p class="mt-0.5 text-sm font-medium text-slate-800">{student.department}</p>
 				</div>
 			</div>
