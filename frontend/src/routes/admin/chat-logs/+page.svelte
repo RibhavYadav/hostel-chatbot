@@ -126,7 +126,7 @@
 							<p class="text-sm font-medium text-slate-800">{log.message}</p>
 							<p class="text-xs text-slate-500">
 								Intent: <span class="font-semibold text-indigo-600">{log.predictedTag}</span>
-								— Confidence: {formatConfidence(log.confidence)}
+								- Confidence: {formatConfidence(log.confidence)}
 							</p>
 							<p class="text-xs text-slate-400">
 								{new Date(log.timestamp).toLocaleString()}
