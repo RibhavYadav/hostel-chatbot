@@ -11,6 +11,7 @@ from slowapi.util import get_remote_address
 
 from app.api.admin import router as admin_router
 from app.api.admin_auth import router as admin_auth_router
+from app.api.admin_documents import router as admin_documents_router
 from app.api.auth import router as auth_router
 from app.api.chat import router as chat_router
 from app.api.leave import router as leave_router
@@ -43,3 +44,4 @@ app.include_router(chat_router)
 app.include_router(leave_router, prefix="/leave")
 app.include_router(admin_auth_router, prefix="/admin")
 app.include_router(admin_router, prefix="/admin")
+app.include_router(admin_documents_router, prefix="/admin")
