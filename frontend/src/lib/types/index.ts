@@ -114,3 +114,22 @@ export interface IntentEntry {
 	patterns: string[];
 	responses: string[];
 }
+
+export interface DocumentInfo {
+	filename: string;
+	size: number;
+	uploadedAt: string;
+}
+
+export interface IntentSuggestion {
+	sentence: string;
+	suggestedIntent: string;
+	similarity: number;
+	type: 'pattern' | 'response';
+	accepted: boolean;
+}
+
+export interface SuggestionResult {
+	totalSuggestions: number;
+	intents: Record<string, IntentSuggestion[]>;
+}
