@@ -19,3 +19,5 @@ slowapi
 sentence-transformers
 faiss-cpu
 pypdf
+python-multipart
+ollama
