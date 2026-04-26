@@ -68,22 +68,19 @@
 
 				{#if canAccess('cso', 'it')}
 					<a
-						href={resolve('/admin/chat-logs')}
-						class="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
-						Chat Logs
-					</a>
-					<a
-						href={resolve('/admin/intents')}
-						class="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
-						Intents
-					</a>
-					<a
 						href={resolve('/admin/documents')}
 						class="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
 						Documents
 					</a>
 				{/if}
 			</nav>
+
+			<!-- Change password -->
+			<a
+				href={resolve('/admin/change-password')}
+				class="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
+				Change Password
+			</a>
 
 			<!-- Logout -->
 			<button
