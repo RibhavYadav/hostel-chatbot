@@ -3,43 +3,52 @@
 venv/
 env/
 
-# Python Version
+# Python cache
 *.pyc
 *.pyo
 *.pyd
 __pycache__/
+**/__pycache__/
 *.py[cod]
 
-# TensorFlow Model Artifacts
+# TensorFlow model artifacts
 *.h5
 *.pkl
 *.ckpt
 *.pb
 saved_model/
-training_checkpoints/
 ml/trained/
 
-# Data
+# Knowledge base
 app/knowledge_base/documents/
 app/knowledge_base/index/
-app/knowledge_base/intents.json
+
+# Data files
 data/admin_data.csv
 data/student_data.csv
+app/knowledge_base/intents.json
+app/constants.py
+
+# Database
 hostel.db
+
+# NLTK downloads
 nltk_data/
 
-# Environment Variables
+# Environment variables
 .env
 .env.*
 !.env.example
 
-# PyCharm
+# IDEs
 .idea/
+.vscode/
 
-# Test Cache
+# Test cache
 .pytest_cache/
 htmlcov/
 .coverage
+coverage/
 
 # Logs
 *.log
