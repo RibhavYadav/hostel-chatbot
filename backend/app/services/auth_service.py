@@ -7,18 +7,13 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
+from app.config import JWT_ALGORITHM, JWT_EXPIRE_MINUTES, JWT_SECRET_KEY
 from app.database import get_db
-
-# JWT configuration
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
-JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
-JWT_EXPIRE_MINUTES = int(os.getenv("JWT_EXPIRE_MINUTES", "1440"))
 
 # HTTPBearer reads the token from the Authorization header
 security = HTTPBearer()
 
 
-# Password hashing
 def hash_password(plain_password: str) -> str:
     """
     Hashes a plain text password using bcrypt.
@@ -44,7 +39,6 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return bcrypt.checkpw(password_bytes, hashed_bytes)
 
 
-# Student JWT
 def create_access_token(registration_number: int) -> str:
     """
     Creates a signed JWT token for a student.
@@ -93,7 +87,6 @@ def get_current_student(
     return student
 
 
-# Admin JWT
 def create_admin_token(email: str, admin_team: str) -> str:
     """
     Creates a signed JWT token for an admin.
@@ -141,7 +134,6 @@ def get_current_admin(
     return admin
 
 
-# Permission check
 def require_teams(*teams):
     """
     FastAPI dependency factory for team-based permission checks.
