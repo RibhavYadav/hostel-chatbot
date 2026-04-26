@@ -1,11 +1,12 @@
 import json
-import os
 import subprocess
+import sys
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from app.config import INTENTS_PATH, TRAIN_SCRIPT
 from app.database import get_db
 from app.models.db_models import Admin, ChatLog, LeaveRequest
 from app.models.schemas import (
@@ -15,10 +16,10 @@ from app.models.schemas import (
     IntentUpdateRequest,
     LeaveRequestResponse,
     LeaveStatusUpdate,
+    PromoteRequest,
 )
 from app.services.auth_service import require_teams
-from app.services.nlp_service import INTENTS_PATH, get_intents, reload_intents, reload_model
-from app.services.rag_service import build_index, reload_index
+from app.services.nlp_service import get_intents, reload_intents, reload_model
 
 router = APIRouter()
 
@@ -60,44 +61,42 @@ def get_chat_logs(
 
 @router.post("/promote/{log_id}", response_model=dict)
 def promote_chat_log(
-    log_id: int, db: Session = Depends(get_db), admin: Admin = Depends(require_teams("cso", "it"))
+    log_id: int,
+    request: PromoteRequest,
+    db: Session = Depends(get_db),
+    admin: Admin = Depends(require_teams("cso", "it")),
 ):
     """
     Adds the student message from the specified chat log as a new
-    training pattern under its predicted intent tag in intents.json.
+    training pattern under the specified intent tag.
+    If targetTag is provided in the request body it overrides the
+    predicted tag, allowing admins to correct misclassified messages.
     Marks the log as promoted so it does not appear in the review
     queue again. Calls reload_intents so the change is immediately
     active without requiring a full model retrain.
-    Model is not retrained here, the new pattern will only improve model predictions
-    after retrain is called separately.
-    Accessible by CSO and IT teams only.
     """
-
-    # Search for chat log
     log = db.query(ChatLog).filter(ChatLog.id == log_id).first()
     if not log:
         raise HTTPException(status_code=404, detail="Chat log not found.")
     if log.promoted:
-        raise HTTPException(status_code=400, detail="This message has already been promoted")
+        raise HTTPException(status_code=400, detail="This message has already been promoted.")
 
-    # Load intents, find matching intent and add the message as a pattern
+    target_tag = request.targetTag if request.targetTag else log.predicted_tag
+
     with open(INTENTS_PATH, "r") as f:
         intents_data = json.load(f)
 
     intent_found = False
     for intent in intents_data["intents"]:
-        if intent["tag"] == log.predicted_tag:
+        if intent["tag"] == target_tag:
             if log.message not in intent["patterns"]:
                 intent["patterns"].append(log.message)
-        intent_found = True
-        break
+            intent_found = True
+            break
 
     if not intent_found:
-        raise HTTPException(
-            status_code=400, detail=f"Intent tag `{log.predicted_tag}` not found in intents.json."
-        )
+        raise HTTPException(status_code=400, detail=f"Intent tag '{target_tag}' not found in intents.json.")
 
-    # Update intents.json, mark log as promoted and reload intents
     with open(INTENTS_PATH, "w") as f:
         json.dump(intents_data, f, indent=4)
 
@@ -105,7 +104,7 @@ def promote_chat_log(
     db.commit()
     reload_intents()
 
-    return {"message": f"Message promoted as pattern under `{log.predicted_tag}`."}
+    return {"message": f"Message promoted as pattern under '{target_tag}'."}
 
 
 @router.get("/intents", response_model=list[IntentModel])
@@ -135,7 +134,6 @@ def create_intent(
     with open(INTENTS_PATH, "r") as f:
         intents_data = json.load(f)
 
-    # Check tag does not already exist
     for intent in intents_data["intents"]:
         if intent["tag"] == request.tag:
             raise HTTPException(status_code=409, detail=f"Intent tag '{request.tag}' already exists.")
@@ -231,11 +229,7 @@ def retrain_model(admin: Admin = Depends(require_teams("cso", "it"))):
     Accessible by CSO and IT teams only.
     """
 
-    train_script = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "ml", "train.py"
-    )
-
-    result = subprocess.run(["python", train_script], capture_output=True, text=True)
+    result = subprocess.run([sys.executable, TRAIN_SCRIPT], capture_output=True, text=True)
 
     if result.returncode != 0:
         raise HTTPException(status_code=500, detail=f"Training failed: {result.stderr}")
@@ -243,20 +237,6 @@ def retrain_model(admin: Admin = Depends(require_teams("cso", "it"))):
     reload_message = reload_model()
 
     return {"message": "Model retrained and reloaded successfully.", "detail": reload_message}
-
-
-@router.post("/reindex", response_model=dict)
-def reindex_documents(admin: Admin = Depends(require_teams("cso", "it"))):
-    """
-    Reads all PDF files from the documents directory, rebuilds the
-    RAG vector index, and reloads it into the running server.
-    Run this after adding or updating any PDF files in the knowledge_base/documents directory.
-    Accessible by CSO and IT teams only.
-    """
-    build_message = build_index()
-    reload_message = reload_index()
-
-    return {"message": "Document index rebuilt successfully.", "detail": f"{build_message} {reload_message}"}
 
 
 @router.get("/leave/all", response_model=list[LeaveRequestResponse])
