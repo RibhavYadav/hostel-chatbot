@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { authStore } from '$lib/stores/authStore';
 	import { changePassword } from '$lib/services/api';
 
 	let isLoading = false;
@@ -55,7 +56,9 @@
 	<div class="auth-card">
 		<div class="text-center">
 			<h1 class="text-3xl font-bold text-slate-900">Change Password</h1>
-			<p class="mt-1 text-sm text-slate-500">Update your account password</p>
+			<p class="mt-1 text-sm text-slate-500">
+				{$authStore.currentUser?.emailID}
+			</p>
 		</div>
 
 		<form on:submit|preventDefault={handleSubmit} class="space-y-4">
