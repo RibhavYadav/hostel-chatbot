@@ -11,14 +11,11 @@ from tensorflow.keras.losses import CategoricalCrossentropy
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import Adam
 
+from app.config import INTENTS_PATH, TRAINED_DIR
+
 # NLTK setup download
 nltk.download("punkt", quiet=True)
 nltk.download("punkt_tab", quiet=True)
-
-# Path definition
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-INTENTS_PATH = os.path.join(BASE_DIR, "app", "knowledge_base", "intents.json")
-TRAINED_DIR = os.path.join(BASE_DIR, "ml", "trained")
 
 # Loading data
 with open(INTENTS_PATH, "r") as f:
@@ -84,23 +81,17 @@ model = Sequential(
     ]
 )
 
-model.compile(
-    optimizer=Adam(learning_rate=0.001), loss=CategoricalCrossentropy(), metrics=["accuracy"]
-)
-
+model.compile(optimizer=Adam(learning_rate=0.001), loss=CategoricalCrossentropy(), metrics=["accuracy"])
 model.summary()
 
 # Model training
 print("\nModel training has begun")
-
 history = model.fit(X_train, y_train, epochs=200, batch_size=8, verbose=15)
-
 final_accuracy = history.history["accuracy"][-1]
 print(f"\nFinal accuracy: {final_accuracy:.4f}")
 
 # Saving model, words and classes
 os.makedirs(TRAINED_DIR, exist_ok=True)
-
 model.save(os.path.join(TRAINED_DIR, "chatbot_model.h5"))
 
 with open(os.path.join(TRAINED_DIR, "words.pkl"), "wb") as f:

@@ -3,16 +3,14 @@ import shutil
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 
+from app.config import DOCUMENTS_DIR
 from app.models.db_models import Admin
 from app.models.schemas import ApplySuggestionsRequest
 from app.services.auth_service import require_teams
-from app.services.rag_service import (
-    DOCUMENTS_DIR,
+from app.services.document_service import (
     analyze_document,
     apply_suggestions,
-    build_index,
     list_documents,
-    reload_index,
 )
 
 router = APIRouter()
@@ -113,16 +111,3 @@ def apply_reviewed_suggestions(
         "responsesAdded": result["responsesAdded"],
         "skipped": result["skipped"],
     }
-
-
-@router.post("/documents/reindex", response_model=dict)
-def reindex_documents(admin: Admin = Depends(require_teams("cso", "it"))):
-    """
-    Rebuilds the RAG vector index from all PDFs in the documents directory.
-    Run after uploading, updating, or deleting any PDF files.
-    Reloads the index into the running server after building.
-    Accessible by CSO and IT teams only.
-    """
-    build_message = build_index()
-    reload_message = reload_index()
-    return {"message": "Document index rebuilt successfully.", "detail": f"{build_message} {reload_message}"}

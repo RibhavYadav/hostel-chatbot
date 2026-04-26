@@ -4,8 +4,7 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-# Engine setup for SQLite with FastAPI
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./hostel.db")
+from app.config import ADMIN_CSV_PATH, DATABASE_URL, STUDENT_CSV_PATH
 
 engine = create_engine(
     DATABASE_URL,
@@ -48,13 +47,8 @@ def init_db():
     try:
         # Student CSV loading
         if db.query(AdminStudent).count() == 0:
-            student_csv_path = os.path.join(
-                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                "data",
-                "student_data.csv",
-            )
-            if os.path.exists(student_csv_path):
-                with open(student_csv_path, "r") as f:
+            if os.path.exists(STUDENT_CSV_PATH):
+                with open(STUDENT_CSV_PATH, "r") as f:
                     reader = csv.DictReader(f)
                     for row in reader:
                         admin_student = AdminStudent(
@@ -71,13 +65,8 @@ def init_db():
 
         # Admin CSV loading
         if db.query(AdminData).count() == 0:
-            admin_csv_path = os.path.join(
-                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                "data",
-                "admin_data.csv",
-            )
-            if os.path.exists(admin_csv_path):
-                with open(admin_csv_path, "r") as f:
+            if os.path.exists(ADMIN_CSV_PATH):
+                with open(ADMIN_CSV_PATH, "r") as f:
                     reader = csv.DictReader(f)
                     for row in reader:
                         admin_data = AdminData(
