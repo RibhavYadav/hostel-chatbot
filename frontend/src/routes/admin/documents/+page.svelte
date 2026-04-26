@@ -6,7 +6,6 @@
 		adminDeleteDocument,
 		adminAnalyzeDocument,
 		adminApplySuggestions,
-		adminReindex,
 	} from '$lib/services/api';
 	import { adminAuthStore } from '$lib/stores/adminAuthStore';
 	import type { DocumentInfo, IntentSuggestion, SuggestionResult } from '$lib/types';
@@ -17,7 +16,6 @@
 	let isUploading = false;
 	let isAnalyzing = false;
 	let isApplying = false;
-	let isReindexing = false;
 
 	let selectedFile: File | null = null;
 	let analyzingFilename: string | null = null;
@@ -88,24 +86,6 @@
 			await loadDocuments();
 		} catch (error) {
 			errorMessage = error instanceof Error ? error.message : 'Delete failed.';
-		}
-	}
-
-	// Re-index
-
-	/** Rebuilds the RAG vector index from all current PDFs. */
-	async function handleReindex() {
-		errorMessage = null;
-		successMessage = null;
-		isReindexing = true;
-
-		try {
-			const result = await adminReindex();
-			successMessage = result.detail;
-		} catch (error) {
-			errorMessage = error instanceof Error ? error.message : 'Reindex failed.';
-		} finally {
-			isReindexing = false;
 		}
 	}
 
@@ -188,12 +168,6 @@
 	<div class="space-y-4 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
 		<div class="flex items-center justify-between">
 			<h2 class="text-lg font-semibold text-slate-800">Uploaded Documents</h2>
-			<button
-				class="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 disabled:opacity-50"
-				onclick={handleReindex}
-				disabled={isReindexing}>
-				{isReindexing ? 'Indexing...' : 'Re-index All'}
-			</button>
 		</div>
 
 		<!-- Upload -->
