@@ -3,9 +3,9 @@ import os
 from pathlib import Path
 
 import numpy as np
-from embedding_service import get_embedding_model
 
 from app.config import DOCUMENTS_DIR, INTENTS_PATH
+from app.services.embedding_service import get_embedding_model
 
 
 def _extract_text_from_pdf(pdf_path: str) -> str:
