@@ -369,15 +369,23 @@ export async function adminGetChatLogs(promoted?: boolean): Promise<ChatLogEntry
 }
 
 /**
- * Promotes a chat log message as a training pattern for its predicted intent.
+ * Promotes a chat log message as a training pattern.
  * Calls POST /admin/promote/{log_id} with the admin JWT token.
- * Marks the log as promoted so it does not appear in the review queue again.
+ * targetTag overrides the predicted intent if the admin selects
+ * a different one from the dropdown before promoting.
  * Accessible by CSO and IT teams only.
  */
-export async function adminPromoteChatLog(logId: number): Promise<{ message: string }> {
+export async function adminPromoteChatLog(
+	logId: number,
+	targetTag?: string
+): Promise<{ message: string }> {
 	const response = await fetch(`${BASE_URL}/admin/promote/${logId}`, {
 		method: 'POST',
-		headers: { ...adminAuthHeaders() },
+		headers: {
+			'Content-Type': 'application/json',
+			...adminAuthHeaders(),
+		},
+		body: JSON.stringify({ targetTag: targetTag ?? null }),
 	});
 
 	if (!response.ok) {
@@ -534,26 +542,6 @@ export async function adminUpdateLeaveStatus(
 }
 
 /**
- * Triggers rebuilding of the RAG document index from PDF files.
- * Calls POST /admin/reindex with the admin JWT token.
- * Run after adding or updating PDF files in the documents directory.
- * Accessible by CSO and IT teams only.
- */
-export async function adminReindex(): Promise<{ message: string; detail: string }> {
-	const response = await fetch(`${BASE_URL}/admin/reindex`, {
-		method: 'POST',
-		headers: { ...adminAuthHeaders() },
-	});
-
-	if (!response.ok) {
-		const error = await response.json();
-		throw new Error(error.detail ?? 'Reindex failed.');
-	}
-
-	return response.json();
-}
-
-/**
  * Returns metadata for all uploaded PDF documents.
  * Calls GET /admin/documents with the admin JWT token.
  * Accessible by CSO and IT teams only.
@@ -598,8 +586,8 @@ export async function adminUploadDocument(file: File): Promise<{ message: string
 
 /**
  * Deletes a PDF file from the documents directory.
- * The RAG index must be rebuilt after deletion for the
- * change to take effect in retrieval.
+ * The document index should be rebuilt after deletion via
+ * adminReindex for the change to take effect in document analysis.
  * Accessible by CSO and IT teams only.
  */
 export async function adminDeleteDocument(filename: string): Promise<{ message: string }> {
@@ -660,6 +648,37 @@ export async function adminApplySuggestions(
 	if (!response.ok) {
 		const error = await response.json();
 		throw new Error(error.detail ?? 'Failed to apply suggestions.');
+	}
+
+	return response.json();
+}
+
+/**
+ * Changes the password for the authenticated admin.
+ * Calls POST /admin/change-password with the admin JWT token.
+ * Verifies the current password before applying the change.
+ * Throws an error with the backend detail message if the change fails.
+ */
+export async function adminChangePassword(
+	currentPassword: string,
+	newPassword: string,
+	confirmNewPassword: string
+): Promise<{ message: string }> {
+	const response = await fetch(`${BASE_URL}/admin/change-password`, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			...adminAuthHeaders(),
+		},
+		body: JSON.stringify({ currentPassword, newPassword, confirmNewPassword }),
+	});
+
+	if (!response.ok) {
+		const error = await response.json();
+		if (Array.isArray(error.detail)) {
+			throw new Error(error.detail.map((e: { msg: string }) => e.msg).join(' '));
+		}
+		throw new Error(error.detail ?? 'Password change failed.');
 	}
 
 	return response.json();
