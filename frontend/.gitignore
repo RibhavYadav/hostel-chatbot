@@ -23,3 +23,14 @@ Thumbs.db
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# TypeScript build cache
+tsconfig.tsbuildinfo
+
+# pnpm
+.pnpm-store/
+
+# Test output
+/coverage
+/test-results
+playwright-report/
