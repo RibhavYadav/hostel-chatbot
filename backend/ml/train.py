@@ -11,11 +11,14 @@ from tensorflow.keras.losses import CategoricalCrossentropy
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import Adam
 
-from app.config import INTENTS_PATH, TRAINED_DIR
-
 # NLTK setup download
 nltk.download("punkt", quiet=True)
 nltk.download("punkt_tab", quiet=True)
+
+# Paths
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+INTENTS_PATH = os.path.join(BASE_DIR, "app", "knowledge_base", "intents.json")
+TRAINED_DIR = os.path.join(BASE_DIR, "ml", "trained")
 
 # Loading data
 with open(INTENTS_PATH, "r") as f:
