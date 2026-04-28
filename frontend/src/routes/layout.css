@@ -1,6 +1,14 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
 
+@utility card {
+	@apply rounded-2xl border border-slate-100 bg-white shadow-sm;
+}
+
+@utility badge {
+	@apply rounded-full px-2 py-0.5 text-xs font-semibold;
+}
+
 @layer components {
 	/* Input */
 	.input-field {
@@ -19,9 +27,6 @@
 	}
 
 	/* Cards and containers */
-	.card {
-		@apply rounded-2xl border border-slate-100 bg-white shadow-sm;
-	}
 	.card-padded {
 		@apply card p-6;
 	}
@@ -41,9 +46,6 @@
 	}
 
 	/* Badges */
-	.badge {
-		@apply rounded-full px-2 py-0.5 text-xs font-semibold;
-	}
 	.badge-green {
 		@apply badge bg-green-100 text-green-700;
 	}
