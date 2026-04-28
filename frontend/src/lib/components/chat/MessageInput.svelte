@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { sendMessage } from '$lib/services/api';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+
 	import { chatStore } from '$lib/stores/chatStore';
+	import { sendMessage } from '$lib/services/api';
 
 	let messageText = '';
 	let textAreaElement: HTMLTextAreaElement;
@@ -68,7 +69,7 @@
 
 	/**
 	 * Sends the student message to the backend NLP model.
-	 * Calls sendMessage from api.ts which attaches the JWT token automatically.
+	 * Calls sendMessage from index.ts which attaches the JWT token automatically.
 	 * Adds the bot response text to the chat store on success.
 	 * If requiresForm is true the model detected a leave request intent -
 	 * the student is redirected to the leave form page automatically.
@@ -98,9 +99,7 @@
 	}
 </script>
 
-<!-- Message input footer -->
 <form on:submit|preventDefault={handleSending} class="mx-auto flex max-w-4xl items-center gap-3">
-	<!-- Message input -->
 	<textarea
 		use:autoResize
 		bind:value={messageText}
@@ -110,10 +109,9 @@
 		rows="1"
 		autocomplete="off"></textarea>
 
-	<!-- Submit button -->
 	<button
 		type="submit"
-		class="button-primary h-12 shrink-0 px-6 transition-all disabled:cursor-not-allowed disabled:opacity-50"
+		class="button-primary h-12 shrink-0 px-6 disabled:cursor-not-allowed disabled:opacity-50"
 		disabled={!messageText.trim()}>
 		Send
 	</button>
