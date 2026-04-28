@@ -1,4 +1,5 @@
 import json
+import os
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -6,7 +7,7 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.config import INTENTS_PATH, TRAIN_SCRIPT
+from app.config import BASE_DIR, INTENTS_PATH, TRAIN_SCRIPT
 from app.database import get_db
 from app.models.db_models import Admin, ChatLog, LeaveRequest
 from app.models.schemas import (
@@ -229,7 +230,7 @@ def retrain_model(admin: Admin = Depends(require_teams("cso", "it"))):
     Accessible by CSO and IT teams only.
     """
 
-    result = subprocess.run([sys.executable, TRAIN_SCRIPT], capture_output=True, text=True)
+    result = subprocess.run([sys.executable, TRAIN_SCRIPT], capture_output=True, text=True, cwd=BASE_DIR)
 
     if result.returncode != 0:
         raise HTTPException(status_code=500, detail=f"Training failed: {result.stderr}")
