@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { adminGetChatLogs, adminPromoteChatLog, adminRetrain } from '$lib/services/api';
-	import type { ChatLogEntry } from '$lib/types';
+	import type { ChatLogEntry } from '$lib/services/api';
 
 	let logs: ChatLogEntry[] = [];
 	let isLoading = true;
@@ -11,6 +11,8 @@
 	let openTag: string | null = null;
 	let allTags: string[] = [];
 	let selectedTags: Record<number, string> = {};
+	let sortBy: 'time' | 'confidence' = 'time';
+	let sortOrder: 'asc' | 'desc' = 'desc';
 
 	/**
 	 * Loads all chat logs on mount and groups them by predicted intent tag.
@@ -39,6 +41,23 @@
 			return acc;
 		},
 		{} as Record<string, ChatLogEntry[]>
+	);
+
+	/**
+	 * Sorts logs within each intent group by the selected field and order.
+	 * Reactive so it updates immediately when sort controls change.
+	 */
+	$: sortedGroupedLogs = Object.fromEntries(
+		Object.entries(groupedLogs).map(([tag, tagLogs]) => [
+			tag,
+			[...tagLogs].sort((a, b) => {
+				const multiplier = sortOrder === 'desc' ? -1 : 1;
+				if (sortBy === 'confidence') {
+					return multiplier * (a.confidence - b.confidence);
+				}
+				return multiplier * (new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+			}),
+		])
 	);
 
 	/** Sorted intent tags — unpromoted-heavy intents appear first. */
@@ -100,12 +119,29 @@
 <div class="space-y-6">
 	<div class="flex items-center justify-between">
 		<h1 class="text-2xl font-bold text-slate-900">Chat Logs</h1>
-		<button
-			class="button-primary px-4 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
-			onclick={handleRetrain}
-			disabled={isRetraining}>
-			{isRetraining ? 'Retraining...' : 'Retrain Model'}
-		</button>
+		<div class="flex items-center gap-3">
+			<div class="flex items-center gap-2">
+				<span class="text-sm text-slate-500">Sort by</span>
+				<select
+					bind:value={sortBy}
+					class="rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-700">
+					<option value="time">Time</option>
+					<option value="confidence">Confidence</option>
+				</select>
+				<select
+					bind:value={sortOrder}
+					class="rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-700">
+					<option value="desc">Newest / Highest first</option>
+					<option value="asc">Oldest / Lowest first</option>
+				</select>
+			</div>
+			<button
+				class="button-primary px-4 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+				onclick={handleRetrain}
+				disabled={isRetraining}>
+				{isRetraining ? 'Retraining...' : 'Retrain Model'}
+			</button>
+		</div>
 	</div>
 
 	{#if errorMessage}
@@ -143,7 +179,7 @@
 					<!-- Accordion body -->
 					{#if openTag === tag}
 						<div class="space-y-3 border-t border-slate-100 px-5 py-4">
-							{#each groupedLogs[tag] as log}
+							{#each sortedGroupedLogs[tag] as log}
 								<div
 									class="space-y-2 rounded-xl border border-slate-100 p-3
 									{log.promoted ? 'opacity-60' : ''}">

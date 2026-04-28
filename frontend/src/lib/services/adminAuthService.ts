@@ -4,7 +4,7 @@ import type { AdminLoginForm, AdminRegisterForm } from '$lib/types';
 
 /**
  * Registers a new admin account.
- * Calls POST /admin/register via api.ts.
+ * Calls POST /admin/register via index.ts.
  * Clears any existing error before the request.
  * Sets an error message in adminAuthStore on failure.
  * Returns true on success, false on failure.
@@ -22,7 +22,7 @@ export async function registerAdminUser(form: AdminRegisterForm): Promise<boolea
 
 /**
  * Authenticates an admin against the backend.
- * Calls POST /admin/login via api.ts.
+ * Calls POST /admin/login via index.ts.
  * On success calls adminAuthStore.loginSuccess to store the token and admin profile.
  * On failure sets an error message in adminAuthStore.
  * Returns true on success, false on failure.

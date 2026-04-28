@@ -26,7 +26,8 @@
 {:else}
 	<div class="flex min-h-screen bg-slate-50">
 		<!-- Sidebar -->
-		<aside class="flex w-56 shrink-0 flex-col border-r border-slate-200 bg-white p-4 shadow-sm">
+		<aside
+			class="flex h-screen w-56 shrink-0 flex-col overflow-y-auto border-r border-slate-200 bg-white p-4 shadow-sm">
 			<!-- Brand -->
 			<div class="mb-6">
 				<h1 class="text-lg font-bold text-slate-900">Admin Portal</h1>
@@ -75,11 +76,11 @@
 				{/if}
 			</nav>
 
-			<!-- Change password -->
+			<!-- Profile -->
 			<a
-				href={resolve('/admin/change-password')}
+				href={resolve('/admin/profile')}
 				class="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
-				Change Password
+				Profile
 			</a>
 
 			<!-- Logout -->

@@ -7,7 +7,7 @@
 		adminDeleteIntent,
 	} from '$lib/services/api';
 	import { adminAuthStore } from '$lib/stores/adminAuthStore';
-	import type { IntentEntry } from '$lib/types';
+	import type { IntentEntry } from '$lib/services/api';
 
 	let intents: IntentEntry[] = [];
 	let isLoading = true;

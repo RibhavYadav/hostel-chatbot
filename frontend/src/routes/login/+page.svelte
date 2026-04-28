@@ -3,7 +3,7 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { authStore } from '$lib/stores/authStore';
-	import type { LoginForm } from '$lib/types';
+	import type { LoginForm } from '$lib/services/api';
 
 	// Template section variables
 	let isLoading: boolean = false;

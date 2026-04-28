@@ -3,7 +3,7 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { submitLeaveRequest, getLeaveStatus } from '$lib/services/api';
-	import type { LeaveRequest, LeaveResponse } from '$lib/types';
+	import type { LeaveRequest, LeaveResponse } from '$lib/services/api';
 
 	// State
 	let leaveRequests: LeaveResponse[] = [];

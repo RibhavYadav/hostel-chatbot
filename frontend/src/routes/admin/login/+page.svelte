@@ -3,7 +3,7 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { adminAuthStore } from '$lib/stores/adminAuthStore';
-	import type { AdminLoginForm } from '$lib/types';
+	import type { AdminLoginForm } from '$lib/services/api';
 
 	let isLoading = false;
 	let errorMessage: string | null = null;

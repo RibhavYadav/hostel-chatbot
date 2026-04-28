@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { adminGetLeaveRequests, adminUpdateLeaveStatus } from '$lib/services/api';
-	import type { LeaveResponse } from '$lib/types';
+	import type { LeaveResponse } from '$lib/services/api';
 
 	let requests: LeaveResponse[] = [];
 	let isLoading = true;

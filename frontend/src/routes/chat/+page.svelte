@@ -41,13 +41,8 @@
 			</a>
 			<a
 				href={resolve('/leave')}
-				class="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100">
-				Leave Request
-			</a>
-			<a
-				href={resolve('/change-password')}
 				class="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium whitespace-nowrap text-slate-600 hover:bg-slate-100">
-				Change Password
+				Leave Request
 			</a>
 			<button class="button-primary w-full px-8" type="button" onclick={handleLogout}>
 				Logout

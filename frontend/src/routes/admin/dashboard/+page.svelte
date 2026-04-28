@@ -2,12 +2,13 @@
 	import { onMount } from 'svelte';
 	import { adminAuthStore } from '$lib/stores/adminAuthStore';
 	import { adminGetLeaveRequests, adminGetChatLogs } from '$lib/services/api';
-	import type { LeaveResponse, ChatLogEntry } from '$lib/types';
+	import type { LeaveResponse, ChatLogEntry } from '$lib/services/api';
 
 	let totalLeave = 0;
 	let pendingLeave = 0;
 	let totalChatLogs = 0;
 	let isLoading = true;
+	const team = $adminAuthStore.currentAdmin?.adminTeam;
 
 	/**
 	 * Fetches summary statistics for the dashboard on mount.
@@ -15,8 +16,6 @@
 	 * Falls back to zero counts if a fetch fails due to team permissions.
 	 */
 	onMount(async () => {
-		const team = $adminAuthStore.currentAdmin?.adminTeam;
-
 		const results = await Promise.allSettled([
 			team === 'it' ? Promise.resolve([]) : adminGetLeaveRequests(),
 			team === 'warden' ? Promise.resolve([]) : adminGetChatLogs(),
@@ -61,10 +60,12 @@
 			</div>
 
 			<!-- Chat logs -->
-			<div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-				<p class="text-sm text-slate-500">Total Chat Logs</p>
-				<p class="mt-1 text-3xl font-bold text-slate-900">{totalChatLogs}</p>
-			</div>
+			{#if team !== 'warden'}
+				<div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+					<p class="text-sm text-slate-500">Total Chat Logs</p>
+					<p class="mt-1 text-3xl font-bold text-slate-900">{totalChatLogs}</p>
+				</div>
+			{/if}
 		</div>
 	{/if}
 </div>

@@ -4,7 +4,7 @@ import type { LoginForm, RegisterForm } from '$lib/types';
 
 /**
  * Registers a new student account.
- * Calls POST /auth/register via api.ts.
+ * Calls POST /auth/register via index.ts.
  * Clears any existing error on success.
  * Sets an error message in authStore on failure.
  * Returns true on success, false on failure.
@@ -27,7 +27,7 @@ export async function register(form: RegisterForm): Promise<boolean> {
 
 /**
  * Authenticates a student against the backend.
- * Calls POST /auth/login via api.ts.
+ * Calls POST /auth/login via index.ts.
  * On success calls authStore.loginSuccess to store the token and student profile.
  * On failure sets an error message in authStore.
  * Returns true on success, false on failure.

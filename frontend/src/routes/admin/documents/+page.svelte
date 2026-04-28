@@ -8,7 +8,7 @@
 		adminApplySuggestions,
 	} from '$lib/services/api';
 	import { adminAuthStore } from '$lib/stores/adminAuthStore';
-	import type { DocumentInfo, IntentSuggestion, SuggestionResult } from '$lib/types';
+	import type { DocumentInfo, IntentSuggestion, SuggestionResult } from '$lib/services/api';
 
 	// State
 	let documents: DocumentInfo[] = [];
@@ -16,6 +16,7 @@
 	let isUploading = false;
 	let isAnalyzing = false;
 	let isApplying = false;
+	let openSuggestionTag: string | null = null;
 
 	let selectedFile: File | null = null;
 	let analyzingFilename: string | null = null;
@@ -152,6 +153,16 @@
 		if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
 		return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 	}
+
+	/** Toggles the suggestion accordion for an intent group. */
+	function toggleSuggestionTag(tag: string) {
+		openSuggestionTag = openSuggestionTag === tag ? null : tag;
+	}
+
+	/** Returns accepted count for a specific intent tag. */
+	function acceptedCountForTag(tag: string): number {
+		return (editableSuggestions[tag] ?? []).filter((s) => s.accepted).length;
+	}
 </script>
 
 <div class="space-y-8">
@@ -244,59 +255,73 @@
 
 			<!-- Suggestions grouped by intent -->
 			{#each Object.entries(editableSuggestions) as [tag, suggestions]}
-				<div class="space-y-2">
-					<h3 class="text-sm font-semibold tracking-wide text-indigo-700 uppercase">
-						{tag}
-					</h3>
-					{#each suggestions as suggestion, i}
-						<div
-							class="flex items-start gap-3 rounded-lg border border-slate-200 p-3
-                            {suggestion.accepted ? 'border-indigo-200 bg-indigo-50' : ''}">
-							<!-- Accept checkbox -->
-							<input
-								type="checkbox"
-								id="accept-{tag}-{i}"
-								bind:checked={suggestion.accepted}
-								class="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600" />
+				<div class="rounded-xl border border-slate-200">
+					<!-- Accordion header -->
+					<button
+						class="flex w-full items-center justify-between px-4 py-3 text-left"
+						onclick={() => toggleSuggestionTag(tag)}>
+						<div class="flex items-center gap-3">
+							<span class="text-sm font-semibold tracking-wide text-indigo-700 uppercase">
+								{tag}
+							</span>
+							<span class="text-xs text-slate-400">{suggestions.length} suggestions</span>
+							{#if acceptedCountForTag(tag) > 0}
+								<span
+									class="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-700">
+									{acceptedCountForTag(tag)} selected
+								</span>
+							{/if}
+						</div>
+						<span class="text-sm text-slate-400">
+							{openSuggestionTag === tag ? '▲' : '▼'}
+						</span>
+					</button>
 
-							<div class="flex-1 space-y-2">
-								<!-- Sentence text -->
-								<p class="text-sm text-slate-800">{suggestion.sentence}</p>
-
-								<div class="flex flex-wrap items-center gap-3">
-									<!-- Similarity score -->
-									<span class="text-xs text-slate-400">
-										{(suggestion.similarity * 100).toFixed(1)}% match
-									</span>
-
-									<!-- Editable intent tag -->
-									<div class="flex items-center gap-1">
-										<label for="intent-{tag}-{i}" class="text-xs text-slate-500"> Intent: </label>
-										<select
-											id="intent-{tag}-{i}"
-											bind:value={suggestion.suggestedIntent}
-											class="rounded border border-slate-200 px-2 py-0.5 text-xs text-slate-700">
-											{#each Object.keys(editableSuggestions) as t}
-												<option value={t}>{t}</option>
-											{/each}
-										</select>
-									</div>
-
-									<!-- Editable type toggle -->
-									<div class="flex items-center gap-1">
-										<label for="type-{tag}-{i}" class="text-xs text-slate-500"> Type: </label>
-										<select
-											id="type-{tag}-{i}"
-											bind:value={suggestion.type}
-											class="rounded border border-slate-200 px-2 py-0.5 text-xs text-slate-700">
-											<option value="pattern">Pattern</option>
-											<option value="response">Response</option>
-										</select>
+					<!-- Accordion body -->
+					{#if openSuggestionTag === tag}
+						<div class="space-y-2 border-t border-slate-100 px-4 py-3">
+							{#each suggestions as suggestion, i}
+								<div
+									class="flex items-start gap-3 rounded-lg border border-slate-200 p-3
+                        {suggestion.accepted ? 'border-indigo-200 bg-indigo-50' : ''}">
+									<input
+										type="checkbox"
+										id="accept-{tag}-{i}"
+										bind:checked={suggestion.accepted}
+										class="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600" />
+									<div class="flex-1 space-y-2">
+										<p class="text-sm text-slate-800">{suggestion.sentence}</p>
+										<div class="flex flex-wrap items-center gap-3">
+											<span class="text-xs text-slate-400">
+												{(suggestion.similarity * 100).toFixed(1)}% match
+											</span>
+											<div class="flex items-center gap-1">
+												<label for="intent-{tag}-{i}" class="text-xs text-slate-500">Intent:</label>
+												<select
+													id="intent-{tag}-{i}"
+													bind:value={suggestion.suggestedIntent}
+													class="rounded border border-slate-200 px-2 py-0.5 text-xs text-slate-700">
+													{#each Object.keys(editableSuggestions) as t}
+														<option value={t}>{t}</option>
+													{/each}
+												</select>
+											</div>
+											<div class="flex items-center gap-1">
+												<label for="type-{tag}-{i}" class="text-xs text-slate-500">Type:</label>
+												<select
+													id="type-{tag}-{i}"
+													bind:value={suggestion.type}
+													class="rounded border border-slate-200 px-2 py-0.5 text-xs text-slate-700">
+													<option value="pattern">Pattern</option>
+													<option value="response">Response</option>
+												</select>
+											</div>
+										</div>
 									</div>
 								</div>
-							</div>
+							{/each}
 						</div>
-					{/each}
+					{/if}
 				</div>
 			{/each}
 		</div>
