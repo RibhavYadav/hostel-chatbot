@@ -1,5 +1,6 @@
-import { BASE_URL, authenticatedFetch, adminAuthHeaders } from '$lib/services/api/utils';
 import type { AdminTokenResponse } from '$lib/types';
+
+import { adminAuthHeaders, authenticatedFetch, BASE_URL } from '$lib/services/api/utils';
 
 /**
  * Registers a new admin account.

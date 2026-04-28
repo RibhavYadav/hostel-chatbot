@@ -1,5 +1,6 @@
-import { BASE_URL, authenticatedFetch, authHeaders } from '$lib/services/api/utils';
-import type { LeaveRequest, LeaveResponse, BotResponse } from '$lib/types';
+import type { BotResponse, LeaveRequest, LeaveResponse } from '$lib/types';
+
+import { authenticatedFetch, authHeaders, BASE_URL } from '$lib/services/api/utils';
 
 /**
  * Sends a student message to the NLP model and returns the bot response.

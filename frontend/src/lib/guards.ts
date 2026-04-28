@@ -1,7 +1,8 @@
-import { authStore } from '$lib/stores/authStore';
-import { adminAuthStore } from '$lib/stores/adminAuthStore';
 import { redirect } from '@sveltejs/kit';
 import { get } from 'svelte/store';
+
+import { adminAuthStore } from '$lib/stores/adminAuthStore';
+import { authStore } from '$lib/stores/authStore';
 
 /**
  * Redirects unauthenticated students to /login.

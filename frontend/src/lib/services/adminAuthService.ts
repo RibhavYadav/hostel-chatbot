@@ -1,6 +1,7 @@
-import { loginAdmin, registerAdmin } from '$lib/services/api';
-import { adminAuthStore } from '$lib/stores/adminAuthStore';
 import type { AdminLoginForm, AdminRegisterForm } from '$lib/types';
+
+import { adminAuthStore } from '$lib/stores/adminAuthStore';
+import { loginAdmin, registerAdmin } from '$lib/services/api';
 
 /**
  * Registers a new admin account.

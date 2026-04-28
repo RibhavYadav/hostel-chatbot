@@ -1,6 +1,7 @@
-import { writable } from 'svelte/store';
-import { saveToken, getToken, clearToken } from '$lib/services/api';
 import type { AuthState, Student } from '$lib/types';
+import { writable } from 'svelte/store';
+
+import { clearToken, getToken, saveToken } from '$lib/services/api';
 
 // Session restoration
 /**

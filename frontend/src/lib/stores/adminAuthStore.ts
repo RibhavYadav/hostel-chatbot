@@ -1,6 +1,7 @@
+import type { Admin, AdminAuthState } from '$lib/types';
 import { writable } from 'svelte/store';
-import { saveAdminToken, getAdminToken, clearAdminToken } from '$lib/services/api';
-import type { AdminAuthState, Admin } from '$lib/types';
+
+import { clearAdminToken, getAdminToken, saveAdminToken } from '$lib/services/api';
 
 // Session restoration
 /**

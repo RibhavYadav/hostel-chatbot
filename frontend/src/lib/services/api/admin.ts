@@ -1,5 +1,6 @@
-import { BASE_URL, authenticatedFetch, adminAuthHeaders } from '$lib/services/api/utils';
 import type { ChatLogEntry, IntentEntry, LeaveResponse } from '$lib/types';
+
+import { adminAuthHeaders, authenticatedFetch, BASE_URL } from '$lib/services/api/utils';
 
 /**
  * Fetches all leave requests for admin review.

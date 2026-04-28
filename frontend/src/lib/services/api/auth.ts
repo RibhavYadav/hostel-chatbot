@@ -1,5 +1,6 @@
-import { BASE_URL, authenticatedFetch, authHeaders } from '$lib/services/api/utils';
 import type { TokenResponse } from '$lib/types';
+
+import { authenticatedFetch, authHeaders, BASE_URL } from '$lib/services/api/utils';
 
 /**
  * Registers a new student account.

@@ -1,6 +1,7 @@
-import { loginStudent, registerStudent } from '$lib/services/api';
-import { authStore } from '$lib/stores/authStore';
 import type { LoginForm, RegisterForm } from '$lib/types';
+
+import { authStore } from '$lib/stores/authStore';
+import { loginStudent, registerStudent } from '$lib/services/api';
 
 /**
  * Registers a new student account.

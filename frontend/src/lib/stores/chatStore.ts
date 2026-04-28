@@ -1,5 +1,5 @@
-import { writable } from 'svelte/store';
 import type { ChatMessage, ChatState } from '$lib/types';
+import { writable } from 'svelte/store';
 
 /** Initial chat state with no messages, not typing, and no errors. */
 const initialStore: ChatState = {
