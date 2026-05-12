@@ -1,9 +1,13 @@
 <script lang="ts">
-	import { register } from '$lib/services/authService';
+	import type { RegisterForm } from '$lib/types';
+
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+
 	import { authStore } from '$lib/stores/authStore';
-	import type { RegisterForm } from '$lib/services/api';
+	import { register } from '$lib/services/authService';
+
+	import FeedbackMessage from '$lib/components/common/FeedbackMessage.svelte';
 
 	// Template section variables
 	let isLoading: boolean = false;
@@ -102,10 +106,8 @@
 				class="input-field"
 				required />
 
-			<!-- Error display -->
-			{#if errorMessage}
-				<p class="text-sm text-red-500">{errorMessage}</p>
-			{/if}
+			<!-- Error message -->
+			<FeedbackMessage type="error" message={errorMessage} />
 
 			<!-- Register -->
 			<button type="submit" class="button-primary w-full" disabled={isLoading}>
