@@ -1,12 +1,22 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+
 	import { authStore } from '$lib/stores/authStore';
 
-	/** The current student's profile data from the auth store.
+	import ProfileCard from '$lib/components/profile/ProfileCard.svelte';
+
+	/**
+	 * The current student's profile data from the auth store.
 	 * Always defined on this page because the route guard
 	 * redirects unauthenticated users to /login.
 	 */
 	const student = $authStore.currentUser!;
+	const studentFields = [
+		{ label: 'Name', value: student.name },
+		{ label: 'Registration Number', value: student.registrationNumber },
+		{ label: 'Email', value: student.emailID },
+		{ label: 'Department', value: student.department },
+	];
 </script>
 
 <div class="flex min-h-screen items-center justify-center bg-slate-50 p-4">
@@ -17,27 +27,7 @@
 		</div>
 
 		<div class="space-y-4">
-			<div class="space-y-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
-				<div>
-					<p class="text-xs font-medium text-slate-400">Name</p>
-					<p class="mt-0.5 text-sm font-medium text-slate-800">{student.name}</p>
-				</div>
-
-				<div>
-					<p class="text-xs font-medium text-slate-400">Registration Number</p>
-					<p class="mt-0.5 text-sm font-medium text-slate-800">{student.registrationNumber}</p>
-				</div>
-
-				<div>
-					<p class="text-xs font-medium text-slate-400">Email</p>
-					<p class="mt-0.5 text-sm font-medium text-slate-800">{student.emailID}</p>
-				</div>
-
-				<div>
-					<p class="text-xs font-medium text-slate-400">Department</p>
-					<p class="mt-0.5 text-sm font-medium text-slate-800">{student.department}</p>
-				</div>
-			</div>
+			<ProfileCard fields={studentFields} />
 
 			<div class="flex gap-3">
 				<a
