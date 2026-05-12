@@ -41,13 +41,17 @@
 	{#if isEditing}
 		<div class="space-y-3 border-t border-slate-100 pt-3">
 			<div>
-				<label class="form-label"
-					>Patterns <span class="text-slate-400">(comma separated)</span></label>
+				<label class="form-label">
+					Patterns
+					<span class="text-slate-400">(comma separated)</span>
+				</label>
 				<textarea bind:value={editPatterns} class="input-field resize-none" rows="3"></textarea>
 			</div>
 			<div>
-				<label class="form-label"
-					>Responses <span class="text-slate-400">(comma separated)</span></label>
+				<label class="form-label">
+					Responses
+					<span class="text-slate-400">(comma separated)</span>
+				</label>
 				<textarea bind:value={editResponses} class="input-field resize-none" rows="3"></textarea>
 			</div>
 			<button
