@@ -1,9 +1,13 @@
 <script lang="ts">
-	import { login } from '$lib/services/authService';
+	import type { LoginForm } from '$lib/types';
+
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+
 	import { authStore } from '$lib/stores/authStore';
-	import type { LoginForm } from '$lib/services/api';
+	import { login } from '$lib/services/authService';
+
+	import FeedbackMessage from '$lib/components/common/FeedbackMessage.svelte';
 
 	// Template section variables
 	let isLoading: boolean = false;
@@ -76,7 +80,7 @@
 				required />
 
 			<!-- Login password -->
-			<label for="password" class="block text-sm font-medium text-slate-700"> Password </label>
+			<label for="password" class="mb-1 block text-sm font-medium text-slate-700"> Password </label>
 			<input
 				type="password"
 				id="password"
@@ -86,9 +90,7 @@
 				required />
 
 			<!-- Error display-->
-			{#if errorMessage}
-				<p class="text-sm text-red-500">{errorMessage}</p>
-			{/if}
+			<FeedbackMessage type="error" message={errorMessage} />
 
 			<!-- Sign in -->
 			<button type="submit" class="button-primary w-full" disabled={isLoading}>

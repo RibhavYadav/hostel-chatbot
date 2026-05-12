@@ -1,11 +1,13 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+
 	import { authStore } from '$lib/stores/authStore';
 	import { chatStore } from '$lib/stores/chatStore';
-	import ChatMessageComponent from '$lib/components/ChatMessage.svelte';
-	import LoadingIndicator from '$lib/components/LoadingIndicator.svelte';
-	import MessageInput from '$lib/components/MessageInput.svelte';
+
+	import ChatMessageComponent from '$lib/components/chat/ChatMessage.svelte';
+	import LoadingIndicator from '$lib/components/chat/LoadingIndicator.svelte';
+	import MessageInput from '$lib/components/chat/MessageInput.svelte';
 
 	// Logout handling
 	async function handleLogout(): Promise<void> {
