@@ -1,8 +1,10 @@
 <script lang="ts">
+	import { get } from 'svelte/store';
+	import { onMount } from 'svelte';
+
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { onMount } from 'svelte';
-	import { get } from 'svelte/store';
+
 	import { authStore } from '$lib/stores/authStore';
 
 	/**
