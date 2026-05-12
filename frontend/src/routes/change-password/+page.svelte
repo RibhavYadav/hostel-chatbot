@@ -1,8 +1,11 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+
 	import { authStore } from '$lib/stores/authStore';
 	import { changePassword } from '$lib/services/api';
+
+	import FeedbackMessage from '$lib/components/common/FeedbackMessage.svelte';
 
 	let isLoading = false;
 	let errorMessage: string | null = null;
@@ -104,12 +107,9 @@
 					required />
 			</div>
 
-			{#if errorMessage}
-				<p class="text-sm text-red-500">{errorMessage}</p>
-			{/if}
-			{#if successMessage}
-				<p class="text-sm text-green-600">{successMessage} Redirecting...</p>
-			{/if}
+			<!-- Message display -->
+			<FeedbackMessage type="error" message={errorMessage} />
+			<FeedbackMessage type="success" message={successMessage} />
 
 			<button type="submit" class="button-primary w-full" disabled={isLoading}>
 				{isLoading ? 'Updating...' : 'Update Password'}
