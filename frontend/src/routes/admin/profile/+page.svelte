@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+
 	import { adminAuthStore } from '$lib/stores/adminAuthStore';
+
+	import ProfileCard from '$lib/components/profile/ProfileCard.svelte';
 
 	const admin = $adminAuthStore.currentAdmin!;
 
@@ -8,6 +11,11 @@
 	function formatTeam(team: string): string {
 		return team.charAt(0).toUpperCase() + team.slice(1).toLowerCase();
 	}
+
+	const adminDetails = [
+		{ label: 'Email', value: admin.emailID },
+		{ label: 'Admin Team', value: formatTeam(admin.adminTeam) },
+	];
 </script>
 
 <div class="flex min-h-screen items-center justify-center bg-slate-50 p-4">
@@ -18,16 +26,7 @@
 		</div>
 
 		<div class="space-y-4">
-			<div class="space-y-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
-				<div>
-					<p class="text-xs font-medium text-slate-400">Email</p>
-					<p class="mt-0.5 text-sm font-medium text-slate-800">{admin.emailID}</p>
-				</div>
-				<div>
-					<p class="text-xs font-medium text-slate-400">Admin Team</p>
-					<p class="mt-0.5 text-sm font-medium text-slate-800">{formatTeam(admin.adminTeam)}</p>
-				</div>
-			</div>
+			<ProfileCard fields={adminDetails} />
 
 			<div class="flex gap-3">
 				<a
